@@ -18,7 +18,8 @@ void Packet::print_data() const
     constexpr size_t cols = 20;
     size_t counter = 0;
     for (u8 c : this->m_data) {
-        std::cout << std::setw(2) << +c << " ";
+        std::cout << std::setw(2) << std::setfill('0')
+                  << +c << " ";
         counter++;
         if (counter == cols) {
             std::cout << std::endl;

@@ -8,8 +8,7 @@
 void EthernetHeader::print() const {
     std::cout << "[Ethernet Header]\n";
 
-    std::cout << std::uppercase << std::hex 
-              << std::setw(2) << std::setfill('0');
+    std::cout << std::uppercase << std::hex;
 
     std::cout << "Destination: ";
     for (int i = 0; i < destination_size; i++)
