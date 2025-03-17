@@ -5,7 +5,6 @@
 int main()
 {
     auto stream = PacketStream::get();
-    
     for (;;) {
         auto nxt = stream->next();
         nxt->print_data();

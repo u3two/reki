@@ -2,31 +2,25 @@
 #define REKI_PACKET
 
 #include "defs.hpp"
-#include "ethernet.hpp"
 
 #include <vector>
 
-/// Packet base class encapsulating the ethernet frame header. Classes representing specific
-/// protocols can further derive from this class (eg. IP_Packet)
+// see: visitors/*
+class PacketVisitor;
+
 class Packet {
 private:
-    const EthernetHeader *m_etherhdr;
-protected:
-    // stores the raw packet data
-    const std::vector<u8> m_data;
-
-    // used by constructors; each constructor sets this to the beginning of the
-    // next layer's packet header
-    u16 m_offset;
+    const std::vector<u8> m_bytes;
 public:
-    /// TODO: disallow this (?) and define a move constructor
-    Packet(std::vector<u8> data);
+    Packet(std::vector<u8> bytes) 
+    : m_bytes{bytes} {}
+
     virtual ~Packet() {};
 
-    virtual void print() const;
-    virtual void print_data() const;
+    const std::vector<u8>& bytes() const { return m_bytes; };
 
-    u32 length() const { return this->m_data.size(); }
+    /// Apply a visitor.
+    virtual void apply(PacketVisitor& visitor);
 };
 
 #endif /* REKI_PACKET */

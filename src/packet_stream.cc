@@ -3,8 +3,8 @@
 #include "defs.hpp"
 
 #include "ethernet.hpp"
-#include "ip_packet.hpp"
-#include "tcp_packet.hpp"
+#include "ip.hpp"
+#include "tcp.hpp"
 
 #include <memory>
 
@@ -67,7 +67,7 @@ std::unique_ptr<Packet> LinuxPacketStream::next() {
     const EthernetHeader *ehdr = reinterpret_cast<EthernetHeader*>(data.data());
     switch (ntohs(ehdr->ethertype)) {
         case static_cast<int>(EtherType::IPv4): {
-            const IP_PacketHeader *iphdr = reinterpret_cast<IP_PacketHeader*>(data.data() + sizeof(EthernetHeader));
+            const IP_Header *iphdr = reinterpret_cast<IP_Header*>(data.data() + sizeof(EthernetHeader));
             switch (iphdr->protocol) {
                 case static_cast<int>(IP_Protocol::TCP): {
                     return std::make_unique<TCP_Packet>(data);
