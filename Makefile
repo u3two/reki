@@ -1,10 +1,10 @@
 CXX = clang++
 # export PKG_CONFIG ?= pkg-config
 
-CPPFLAGS = -Wall -Wextra --std=c++17 --pedantic
+CPPFLAGS = -Wall -Wextra --std=c++20 --pedantic
 DEBUG_FLAGS = -fsanitize=address,undefined -g3
 
-SRC = $(wildcard src/*.cc) 
+SRC = $(shell find src/ -type f -name '*.cc')
 OBJ = $(SRC:.cc=.o)
 
 TARGET = reki
