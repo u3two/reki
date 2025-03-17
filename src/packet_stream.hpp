@@ -2,6 +2,7 @@
 #define REKI_PACKET_STREAM
 
 #include "packet.hpp"
+
 #include <memory>
 
 class PacketStream {

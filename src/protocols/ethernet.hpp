@@ -19,18 +19,22 @@ struct EthernetHeader {
     static constexpr auto source_size = 6;
     u8 source[source_size];
     u16 ethertype;
+    /// convert relevant fields to host byte order
+    void into_host();
     /// pretty print header data
     void print() const;
 } __attribute__((packed));
 
 class EthernetPacket : public Packet {
 private:
-    using super = Packet;
     const EthernetHeader *m_header;
 public:
+    using super = Packet;
     EthernetPacket(std::vector<u8> bytes);
 
     virtual void apply(PacketVisitor& visitor) override;
+
+    const EthernetHeader* eth_header() { return this->m_header; }
 };
 
 #endif /* REKI_ETHERNET */

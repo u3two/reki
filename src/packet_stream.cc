@@ -2,9 +2,7 @@
 #include "packet_stream.hpp"
 #include "defs.hpp"
 
-#include "ethernet.hpp"
-#include "ip.hpp"
-#include "tcp.hpp"
+#include "protocols/ethernet.hpp"
 
 #include <memory>
 
@@ -64,19 +62,22 @@ std::unique_ptr<Packet> LinuxPacketStream::next() {
     // and then just construct ethernet -> check ethertype -> ip (or whatever) -> tcp (...)
     // determine packet type, for now we assume that:
     //  - all packets we receive contain valid ethernet frames
-    const EthernetHeader *ehdr = reinterpret_cast<EthernetHeader*>(data.data());
-    switch (ntohs(ehdr->ethertype)) {
-        case static_cast<int>(EtherType::IPv4): {
-            const IP_Header *iphdr = reinterpret_cast<IP_Header*>(data.data() + sizeof(EthernetHeader));
-            switch (iphdr->protocol) {
-                case static_cast<int>(IP_Protocol::TCP): {
-                    return std::make_unique<TCP_Packet>(data);
-                } break;
-            }
-            return std::make_unique<IP_Packet>(data);
-        } break;
-    }
+    // const EthernetHeader *ehdr = reinterpret_cast<EthernetHeader*>(data.data());
+    // switch (ntohs(ehdr->ethertype)) {
+    //     case static_cast<int>(EtherType::IPv4): {
+    //         const IP_Header *iphdr = reinterpret_cast<IP_Header*>(data.data() + sizeof(EthernetHeader));
+    //         switch (iphdr->protocol) {
+    //             case static_cast<int>(IP_Protocol::TCP): {
+    //                 return std::make_unique<TCP_Packet>(data);
+    //             } break;
+    //         }
+    //         return std::make_unique<IP_Packet>(data);
+    //     } break;
+    // }
+
+    // Assume for now that all packets coming our way are ethernet packets
+    auto eth = std::make_unique<EthernetPacket>(data);
 
     // unhandled type, just construct the base class packet
-    return std::make_unique<Packet>(data);
+    return std::make_unique<EthernetPacket>(data);
 }
