@@ -21,8 +21,8 @@ protected:
     /// get a mutable span of the packet's raw data
     std::span<u8> bytes_mut() { return m_bytes; };
 public:
-    Packet(std::vector<u8> bytes) 
-    : m_bytes{bytes} {}
+    Packet(std::vector<u8>&& bytes) 
+    : m_bytes{std::move(bytes)} {}
 
     virtual ~Packet() {};
 

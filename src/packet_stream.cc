@@ -12,6 +12,8 @@
 #include <net/ethernet.h>
 #include <arpa/inet.h>
 
+#include <net/ethernet.h>
+
 
 std::unique_ptr<PacketStream> PacketStream::get()
 {
@@ -76,8 +78,11 @@ std::unique_ptr<Packet> LinuxPacketStream::next() {
     // }
 
     // Assume for now that all packets coming our way are ethernet packets
-    auto eth = std::make_unique<EthernetPacket>(data);
+    // EthernetPacket eth { data };
+    // if (eth.eth_header()->ethertype == static_cast<u16>(EtherType::IPv4)) {
+    //     // TODO
+    // }
 
-    // unhandled type, just construct the base class packet
-    return std::make_unique<EthernetPacket>(data);
+    // unhandled type, just return an ethernet packet
+    return std::make_unique<EthernetPacket>(std::move(data));
 }

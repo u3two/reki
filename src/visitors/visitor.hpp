@@ -3,6 +3,7 @@
 
 #include "../packet.hpp"
 #include "../protocols/ethernet.hpp"
+#include "../protocols/ip.hpp"
 
 class PacketVisitor {
 public:
@@ -10,6 +11,7 @@ public:
 
     virtual void visit(Packet &a) = 0;
     virtual void visit(EthernetPacket &a) = 0;
+    virtual void visit(IP_Packet &a) = 0;
 };
 
 class PacketPrinter : public PacketVisitor {
@@ -20,6 +22,7 @@ public:
 
     void visit(Packet &a) override final;
     void visit(EthernetPacket &a) override final;
+    void visit(IP_Packet &a) override final;
 };
 
 #endif /* REKI_VISITOR */

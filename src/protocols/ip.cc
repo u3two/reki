@@ -7,13 +7,22 @@
 
 #include <arpa/inet.h>
 
-IP_Packet::IP_Packet(std::vector<u8> bytes)
-: super{bytes} 
+IP_Packet::IP_Packet(std::vector<u8>&& bytes)
+: super{std::move(bytes)} 
 {
-    m_header = 
-        reinterpret_cast<const IP_Header*>(this->bytes().data() + m_offset);
+    auto header_mut = reinterpret_cast<IP_Header*>(this->bytes_mut().data() + m_offset);
+    header_mut->into_host_endianness();
+    m_header = header_mut;
     // TODO: ip header could vary in size, handle like tcp
     m_offset += sizeof(IP_Header);
+}
+
+void IP_Header::into_host_endianness()
+{
+    this->total_length = htons(this->total_length);
+    this->identification = htons(this->identification);
+    // fragment_offset & flags ?
+    this->checksum = htons(this->checksum);
 }
 
 void IP_Header::print() const 

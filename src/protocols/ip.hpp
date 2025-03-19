@@ -27,17 +27,20 @@ struct IP_Header {
     u16 checksum;
     u8 source_address[4];
     u8 destination_address[4];
-    /// Pretty print header contents
+    /// pretty print header contents
     void print() const;
+    /// convert relevant fields to host byte order
+    void into_host_endianness();
 } __attribute__((packed));
-
 
 class IP_Packet : public EthernetPacket {
 private:
     const IP_Header *m_header;
 public:
     using super = EthernetPacket;
-    IP_Packet(std::vector<u8> bytes);
+    IP_Packet(std::vector<u8>&& bytes);
+
+    IP_Packet(EthernetPacket&& eth);
 
     virtual void apply(PacketVisitor& visitor) override;
 

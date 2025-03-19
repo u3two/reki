@@ -5,7 +5,7 @@
 #include <iostream>
 #include <arpa/inet.h>
 
-void EthernetHeader::into_host() 
+void EthernetHeader::into_host_endianness() 
 {
     this->ethertype = htons(this->ethertype);
 }
@@ -52,11 +52,12 @@ void EthernetHeader::print() const {
     std::cout << std::dec;
 }
 
-EthernetPacket::EthernetPacket(std::vector<u8> bytes)
-: super{bytes} 
+EthernetPacket::EthernetPacket(std::vector<u8>&& bytes)
+: super{std::move(bytes)} 
 {
-    m_header = 
-        reinterpret_cast<const EthernetHeader *>(this->bytes().data() + m_offset);
+    auto header_mut = reinterpret_cast<EthernetHeader*>(this->bytes_mut().data() + m_offset);
+    header_mut->into_host_endianness();
+    m_header = header_mut;
     m_offset += sizeof(EthernetHeader);
 }
 

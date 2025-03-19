@@ -4,12 +4,17 @@
 #include "../defs.hpp"
 #include "../packet.hpp"
 
+#include <net/ethernet.h>
+
 /// Non-comprehensive due to the standard specifying  any value 
 /// under 1500 to be the size, see EtherType::print()
 enum class EtherType : u16 {
-    IPv4 = 0x0800,
-    IPv6 = 0x08DD,
-    WakeOnLan = 0x0842
+    IPv4 = ETHERTYPE_IP,
+    ARP = ETHERTYPE_ARP,
+    REVARP = ETHERTYPE_REVARP,
+    IPv6 = ETHERTYPE_IPV6,
+    WakeOnLan = 0x0842,
+    Loopback = ETHERTYPE_LOOPBACK,
 };
 
 /// Ethernet frame header data
@@ -20,7 +25,7 @@ struct EthernetHeader {
     u8 source[source_size];
     u16 ethertype;
     /// convert relevant fields to host byte order
-    void into_host();
+    void into_host_endianness();
     /// pretty print header data
     void print() const;
 } __attribute__((packed));
@@ -30,7 +35,7 @@ private:
     const EthernetHeader *m_header;
 public:
     using super = Packet;
-    EthernetPacket(std::vector<u8> bytes);
+    EthernetPacket(std::vector<u8>&& bytes);
 
     virtual void apply(PacketVisitor& visitor) override;
 

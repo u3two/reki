@@ -31,3 +31,8 @@ void PacketPrinter::visit(EthernetPacket &a) {
     PacketPrinter::visit(static_cast<EthernetPacket::super&>(a));
     a.eth_header()->print();
 }
+
+void PacketPrinter::visit(IP_Packet &a) {
+    PacketPrinter::visit(static_cast<IP_Packet::super&>(a));
+    a.ip_header()->print();
+}
