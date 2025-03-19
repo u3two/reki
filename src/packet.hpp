@@ -26,6 +26,12 @@ public:
 
     virtual ~Packet() {};
 
+    Packet(const Packet&) = delete;
+    Packet& operator=(const Packet&) = delete;
+
+    Packet(Packet&&) = delete;
+    Packet& operator=(Packet&&) = delete;
+
     /// get an immutable span of the packet's raw data
     std::span<const u8> bytes() const { return m_bytes; };
 
