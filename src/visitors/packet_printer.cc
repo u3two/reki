@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
-void PacketPrinter::visit(Packet &a) {
+void PacketPrinter::visit(Packet& a) {
     if (this->hexdump) {
         std::cout << std::uppercase << std::hex;
 
@@ -27,12 +27,17 @@ void PacketPrinter::visit(Packet &a) {
               << std::endl;
 }
 
-void PacketPrinter::visit(EthernetPacket &a) {
+void PacketPrinter::visit(EthernetPacket& a) {
     PacketPrinter::visit(static_cast<EthernetPacket::super&>(a));
     a.eth_header().print();
 }
 
-void PacketPrinter::visit(IP_Packet &a) {
+void PacketPrinter::visit(IP_Packet& a) {
     PacketPrinter::visit(static_cast<IP_Packet::super&>(a));
     a.ip_header().print();
+}
+
+void PacketPrinter::visit(TCP_Packet& a) {
+    PacketPrinter::visit(static_cast<TCP_Packet::super&>(a));
+    a.tcp_header().print();
 }

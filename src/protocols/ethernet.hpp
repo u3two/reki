@@ -3,8 +3,10 @@
 
 #include "../defs.hpp"
 #include "../packet.hpp"
+#include "../packet_header.hpp"
 
 #include <net/ethernet.h>
+#include <string_view>
 
 /// Non-comprehensive due to the standard specifying  any value 
 /// under 1500 to be the size, see EtherType::print()
@@ -31,24 +33,21 @@ constexpr std::string_view ethertype_to_sv(EtherType et)
 }
 
 /// Ethernet frame header data
-struct EthernetHeader {
+struct EthernetHeaderData {
     static constexpr auto destination_size = 6;
     u8 destination[destination_size];
     static constexpr auto source_size = 6;
     u8 source[source_size];
     u16 ethertype;
-
-    /// (copy) construct an EthernetHeader from raw data
-    /// assumes *data is >= sizeof(EthernetHeader)
-    EthernetHeader(const u8 *data) {
-        *this = *reinterpret_cast<const EthernetHeader*>(data);
-    }
-
-    /// convert relevant fields to host byte order
-    void into_host_endianness();
-    /// pretty print header data
-    void print() const;
 } __attribute__((packed));
+
+using EthernetHeader = PacketHeader<EthernetHeaderData>;
+
+template<>
+void EthernetHeader::print() const;
+
+template<>
+void EthernetHeader::into_host_endian();
 
 class EthernetPacket : public Packet {
 private:

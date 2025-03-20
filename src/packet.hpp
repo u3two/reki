@@ -44,11 +44,6 @@ public:
 
     /// Apply a visitor.
     virtual void apply(PacketVisitor& visitor);
-
-    /// "upgrade" this packet type to the next layer down.
-    /// .second is true if an upgrade took place, otherwise the Packet is
-    /// returned unchanged.
-    // virtual std::pair<std::unique_ptr<Packet>, bool> upgrade() &&;
 };
 
 #endif /* REKI_PACKET */

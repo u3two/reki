@@ -4,6 +4,7 @@
 #include "../packet.hpp"
 #include "../protocols/ethernet.hpp"
 #include "../protocols/ip.hpp"
+#include "../protocols/tcp.hpp"
 
 class PacketVisitor {
 public:
@@ -12,17 +13,19 @@ public:
     virtual void visit(Packet &a) = 0;
     virtual void visit(EthernetPacket &a) = 0;
     virtual void visit(IP_Packet &a) = 0;
+    virtual void visit(TCP_Packet &a) = 0;
 };
 
-class PacketPrinter : public PacketVisitor {
+class PacketPrinter final : public PacketVisitor {
 public:
     bool hexdump = false;
 
-    virtual ~PacketPrinter() {};
+    ~PacketPrinter() {};
 
-    void visit(Packet &a) override final;
-    void visit(EthernetPacket &a) override final;
-    void visit(IP_Packet &a) override final;
+    void visit(Packet& a) override;
+    void visit(EthernetPacket& a) override;
+    void visit(IP_Packet& a) override;
+    void visit(TCP_Packet& a) override;
 };
 
 #endif /* REKI_VISITOR */

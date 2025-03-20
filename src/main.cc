@@ -6,6 +6,7 @@
 int main()
 {
     auto stream = PacketStream::get();
+
     auto printer = PacketPrinter {};
     printer.hexdump = true;
 

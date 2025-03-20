@@ -1,8 +1,8 @@
 #ifndef REKI_IP
 #define REKI_IP
 
+#include "../packet_header.hpp"
 #include "ethernet.hpp"
-#include "../packet.hpp"
 
 // https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 enum class IP_Protocol {
@@ -21,9 +21,9 @@ constexpr std::string_view ip_proto_to_sv(IP_Protocol ip)
     return "Unknown";
 }
 
-/// IPv4 packet header
+/// IPv4 packet header data
 /// https://datatracker.ietf.org/doc/html/rfc791 Section 3.1
-struct IP_Header {
+struct IP_HeaderData {
     u8 version : 4;
     u8 iheader_length : 4;
     u8 dscp : 6;
@@ -37,18 +37,15 @@ struct IP_Header {
     u16 checksum;
     u8 source_address[4];
     u8 destination_address[4];
-
-    /// (copy) construct an IP_Header from raw data
-    /// assumes *data is >= sizeof(IP_Header)
-    IP_Header(const u8 *data) {
-        *this = *reinterpret_cast<const IP_Header*>(data);
-    }
-
-    /// convert relevant fields to host byte order
-    void into_host_endianness();
-    /// pretty print header contents
-    void print() const;
 } __attribute__((packed));
+
+using IP_Header = PacketHeader<IP_HeaderData>;
+
+template<>
+void IP_Header::print() const;
+
+template<>
+void IP_Header::into_host_endian();
 
 class IP_Packet : public EthernetPacket {
 private:
@@ -57,15 +54,11 @@ public:
     using super = EthernetPacket;
 
     IP_Packet(std::vector<u8>&& bytes);
+    IP_Packet(super&& sup);
 
     IP_Packet(IP_Packet&& other)
-        : super(std::move(other))
-        , m_header(other.m_header)
-    {}
-
-    IP_Packet(super&& sup)
-        : super{std::move(sup)}
-        , m_header{sup.offset_ptr()} 
+        : super{std::move(other)}
+        , m_header{other.m_header}
     {}
 
     virtual void apply(PacketVisitor& visitor) override;
