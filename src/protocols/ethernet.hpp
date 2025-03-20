@@ -17,6 +17,19 @@ enum class EtherType : u16 {
     Loopback = ETHERTYPE_LOOPBACK,
 };
 
+constexpr std::string_view ethertype_to_sv(EtherType et) 
+{
+    switch(et) {
+        case EtherType::IPv4: return "IPv4";
+        case EtherType::IPv6: return "IPv6";
+        case EtherType::ARP : return "ARP";
+        case EtherType::REVARP : return "Reverse-ARP";
+        case EtherType::WakeOnLan : return "Wake-on-Lan";
+        case EtherType::Loopback: return "Loopback";
+    }
+    return "Unknown";
+}
+
 /// Ethernet frame header data
 struct EthernetHeader {
     static constexpr auto destination_size = 6;
@@ -24,6 +37,13 @@ struct EthernetHeader {
     static constexpr auto source_size = 6;
     u8 source[source_size];
     u16 ethertype;
+
+    /// (copy) construct an EthernetHeader from raw data
+    /// assumes *data is >= sizeof(EthernetHeader)
+    EthernetHeader(const u8 *data) {
+        *this = *reinterpret_cast<const EthernetHeader*>(data);
+    }
+
     /// convert relevant fields to host byte order
     void into_host_endianness();
     /// pretty print header data
@@ -32,14 +52,25 @@ struct EthernetHeader {
 
 class EthernetPacket : public Packet {
 private:
-    const EthernetHeader *m_header;
+    EthernetHeader m_header;
 public:
     using super = Packet;
+
     EthernetPacket(std::vector<u8>&& bytes);
+
+    EthernetPacket(EthernetPacket&& other)
+        : super{std::move(other)}
+        , m_header(other.m_header)
+    {}
+
+    EthernetPacket(super&& sup)
+        : super{std::move(sup)}
+        , m_header{sup.offset_ptr()} 
+    {}
 
     virtual void apply(PacketVisitor& visitor) override;
 
-    const EthernetHeader* eth_header() { return this->m_header; }
+    const EthernetHeader& eth_header() { return this->m_header; }
 };
 
 #endif /* REKI_ETHERNET */

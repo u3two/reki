@@ -5,9 +5,18 @@
 #include <iostream>
 #include <arpa/inet.h>
 
+EthernetPacket::EthernetPacket(std::vector<u8>&& bytes)
+: super{std::move(bytes)} 
+, m_header(offset_ptr())
+{
+    m_header.into_host_endianness();
+    m_offset += sizeof(EthernetHeader);
+}
+
+
 void EthernetHeader::into_host_endianness() 
 {
-    this->ethertype = htons(this->ethertype);
+    this->ethertype = ntohs(this->ethertype);
 }
 
 void EthernetHeader::print() const {
@@ -27,38 +36,18 @@ void EthernetHeader::print() const {
                   << ((i != destination_size - 1) ? ":" : "");
     std::cout << std::endl;
 
-    u16 as_host = ntohs(this->ethertype);
     std::cout << "EtherType: ";
-    if (as_host <= 1500) {
-        std::cout << std::dec << "size(" << as_host << ")\n";
-    } else if (as_host <= 1535) {
+    if (this->ethertype <= 1500) {
+        std::cout << std::dec << "size(" << this->ethertype << ")\n";
+    } else if (this->ethertype <= 1535) {
         std::cout << "UNDEFINED (malformed packet?)";
     } else {
-        std::cout << "0x" << as_host;
-        switch (as_host) {
-            case static_cast<u16>(EtherType::IPv4): 
-                std::cout << " (IPv4)";
-                break;
-            case static_cast<u16>(EtherType::IPv6): 
-                std::cout << " (IPv6)";
-                break;
-            case static_cast<u16>(EtherType::WakeOnLan): // ether-wake
-                std::cout << " (Wake-on-Lan)";
-                break;
-        }
-        std::cout << std::endl;
+        std::cout << "0x" << this->ethertype
+                  << " (" << ethertype_to_sv(EtherType(this->ethertype)) << ")"
+                  << std::endl;
     }
 
     std::cout << std::dec;
-}
-
-EthernetPacket::EthernetPacket(std::vector<u8>&& bytes)
-: super{std::move(bytes)} 
-{
-    auto header_mut = reinterpret_cast<EthernetHeader*>(this->bytes_mut().data() + m_offset);
-    header_mut->into_host_endianness();
-    m_header = header_mut;
-    m_offset += sizeof(EthernetHeader);
 }
 
 void EthernetPacket::apply(PacketVisitor &visitor) 

@@ -3,6 +3,7 @@
 #include "defs.hpp"
 
 #include "protocols/ethernet.hpp"
+#include "protocols/ip.hpp"
 
 #include <memory>
 
@@ -60,29 +61,33 @@ std::vector<u8> LinuxPacketStream::fetch_next()
 std::unique_ptr<Packet> LinuxPacketStream::next() {
     auto data = this->fetch_next();
 
-    // TODO: this is mostly temporary? we should make packet construction super cheap
-    // and then just construct ethernet -> check ethertype -> ip (or whatever) -> tcp (...)
-    // determine packet type, for now we assume that:
-    //  - all packets we receive contain valid ethernet frames
-    // const EthernetHeader *ehdr = reinterpret_cast<EthernetHeader*>(data.data());
-    // switch (ntohs(ehdr->ethertype)) {
-    //     case static_cast<int>(EtherType::IPv4): {
-    //         const IP_Header *iphdr = reinterpret_cast<IP_Header*>(data.data() + sizeof(EthernetHeader));
-    //         switch (iphdr->protocol) {
-    //             case static_cast<int>(IP_Protocol::TCP): {
-    //                 return std::make_unique<TCP_Packet>(data);
-    //             } break;
-    //         }
-    //         return std::make_unique<IP_Packet>(data);
-    //     } break;
-    // }
+    // assume for now that all packets coming our way are ethernet packets.
+    auto eth = EthernetPacket { std::move(data) };
 
-    // Assume for now that all packets coming our way are ethernet packets
-    // EthernetPacket eth { data };
-    // if (eth.eth_header()->ethertype == static_cast<u16>(EtherType::IPv4)) {
-    //     // TODO
-    // }
-
-    // unhandled type, just return an ethernet packet
-    return std::make_unique<EthernetPacket>(std::move(data));
+    // this whole "upgrade" process could probably be streamlined into a .upgrade() thing
+    // for every type here, returning maybe something like a pair<Packet, bool> indicating
+    // whether an upgrade was successful and so on.
+    switch (eth.eth_header().ethertype) {
+        case static_cast<u16>(EtherType::IPv4): {
+            auto ip = IP_Packet { std::move(eth) };
+            switch (ip.ip_header().protocol) {
+                case static_cast<u16>(IP_Protocol::TCP): {
+                    // TODO: TCP
+                } break;
+                case static_cast<u16>(IP_Protocol::UDP): {
+                    // TODO: UDP
+                } break;
+                case static_cast<u16>(IP_Protocol::ICMP): {
+                    // TODO: UDP
+                } break;
+            }
+            // unhandled ip protocol, just return as ip packet
+            return std::make_unique<IP_Packet>(std::move(ip));
+        } break;
+        case static_cast<u16>(EtherType::ARP): {
+            // TODO: ARP
+        };
+    }
+    // unhandled ethertype, just return as ethernet packet
+    return std::make_unique<EthernetPacket>(std::move(eth));
 }

@@ -1,7 +1,7 @@
 CXX = clang++
 # export PKG_CONFIG ?= pkg-config
 
-CPPFLAGS = -Wall -Wextra --std=c++20 --pedantic
+CPPFLAGS = -Wall -Wextra --std=c++17 --pedantic
 DEBUG_FLAGS = -fsanitize=address,undefined -g3
 
 SRC = $(shell find src/ -type f -name '*.cc')
