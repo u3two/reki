@@ -2,31 +2,53 @@
 #define REKI_PACKET
 
 #include "defs.hpp"
-#include "ethernet.hpp"
 
 #include <vector>
 
-/// Packet base class encapsulating the ethernet frame header. Classes representing specific
-/// protocols can further derive from this class (eg. IP_Packet)
+// see: visitors/*
+class PacketVisitor;
+
 class Packet {
 private:
-    const EthernetHeader *m_etherhdr;
+    /// raw packet data, should never be accessed directly after intialization,
+    /// for it must not reallocate.
+    const std::vector<u8> m_bytes;
 protected:
-    // stores the raw packet data
-    const std::vector<u8> m_data;
-
-    // used by constructors; each constructor sets this to the beginning of the
-    // next layer's packet header
-    u16 m_offset;
+    /// used by constructors; each constructor sets this to the beginning of the
+    /// next layer's packet header
+    u16 m_offset = 0;
 public:
-    /// TODO: disallow this (?) and define a move constructor
-    Packet(std::vector<u8> data);
+    Packet(std::vector<u8>&& bytes) 
+    : m_bytes{std::move(bytes)} {}
+
     virtual ~Packet() {};
 
-    virtual void print() const;
-    virtual void print_data() const;
+    // disallow copy operations
+    Packet(const Packet&) = delete;
+    Packet& operator=(const Packet&) = delete;
 
-    u32 length() const { return this->m_data.size(); }
+    // disallow move assignment
+    Packet& operator=(Packet&&) = delete;
+
+    // .. but _allow_ move construction
+    Packet(Packet&& other)
+        : m_bytes(std::move(other.m_bytes)) 
+        , m_offset(other.m_offset)
+    {}
+
+    /// get an immutable span of the packet's raw data
+    const std::vector<u8>& bytes() const { return m_bytes; };
+
+    /// get data ptr to current offset
+    const u8 *offset_ptr() const { return m_bytes.data() + m_offset; }
+
+    /// Apply a visitor.
+    virtual void apply(PacketVisitor& visitor);
+
+    /// "upgrade" this packet type to the next layer down.
+    /// .second is true if an upgrade took place, otherwise the Packet is
+    /// returned unchanged.
+    // virtual std::pair<std::unique_ptr<Packet>, bool> upgrade() &&;
 };
 
 #endif /* REKI_PACKET */

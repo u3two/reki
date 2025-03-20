@@ -4,7 +4,7 @@ CXX = clang++
 CPPFLAGS = -Wall -Wextra --std=c++17 --pedantic
 DEBUG_FLAGS = -fsanitize=address,undefined -g3
 
-SRC = $(wildcard src/*.cc) 
+SRC = $(shell find src/ -type f -name '*.cc')
 OBJ = $(SRC:.cc=.o)
 
 TARGET = reki
