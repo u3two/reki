@@ -55,21 +55,17 @@ private:
 public:
     using super = Packet;
 
-    EthernetPacket(std::vector<u8>&& bytes);
+    explicit EthernetPacket(std::vector<u8>&& bytes);
+    explicit EthernetPacket(super&& sup);
 
-    EthernetPacket(EthernetPacket&& other)
+    explicit EthernetPacket(EthernetPacket&& other)
         : super{std::move(other)}
         , m_header(other.m_header)
     {}
 
-    EthernetPacket(super&& sup)
-        : super{std::move(sup)}
-        , m_header{sup.offset_ptr()} 
-    {}
-
     virtual void apply(PacketVisitor& visitor) override;
 
-    const EthernetHeader& eth_header() { return this->m_header; }
+    const EthernetHeader& eth_header() const { return this->m_header; }
 };
 
 #endif /* REKI_ETHERNET */

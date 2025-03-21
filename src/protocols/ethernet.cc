@@ -13,6 +13,14 @@ EthernetPacket::EthernetPacket(std::vector<u8>&& bytes)
     m_offset += sizeof(EthernetHeader);
 }
 
+EthernetPacket::EthernetPacket(super&& sup)
+    : super{std::move(sup)}
+    , m_header{offset_ptr()} 
+{
+    m_header.into_host_endian();
+    m_offset += sizeof(EthernetHeader);
+}
+
 template<>
 void EthernetHeader::into_host_endian() 
 {

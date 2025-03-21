@@ -18,7 +18,7 @@ protected:
     /// next layer's packet header
     u16 m_offset = 0;
 public:
-    Packet(std::vector<u8>&& bytes) 
+    explicit Packet(std::vector<u8>&& bytes) 
     : m_bytes{std::move(bytes)} {}
 
     virtual ~Packet() {};
@@ -31,7 +31,7 @@ public:
     Packet& operator=(Packet&&) = delete;
 
     // .. but _allow_ move construction
-    Packet(Packet&& other)
+    explicit Packet(Packet&& other)
         : m_bytes(std::move(other.m_bytes)) 
         , m_offset(other.m_offset)
     {}

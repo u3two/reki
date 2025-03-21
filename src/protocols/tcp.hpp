@@ -33,12 +33,12 @@ private:
 public:
     using super = IP_Packet;
 
-    TCP_Packet(std::vector<u8>&& bytes);
-    TCP_Packet(super&& sup);
+    explicit TCP_Packet(std::vector<u8>&& bytes);
+    explicit TCP_Packet(super&& sup);
 
     virtual void apply(PacketVisitor& visitor) override;
 
-    const TCP_Header& tcp_header() { return this->m_header; }
+    const TCP_Header& tcp_header() const { return this->m_header; }
 };
 
 #endif /* REKI_TCP_PACKET */

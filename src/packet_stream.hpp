@@ -21,7 +21,7 @@ private:
     std::vector<u8> fetch_next();
 public:
     LinuxPacketStream();
-    ~LinuxPacketStream();
+    ~LinuxPacketStream() override;
     std::unique_ptr<Packet> next() override;
 };
 

@@ -8,9 +8,8 @@ class PacketHeader {
 private:
     header_t m_header;
 public:
-    PacketHeader(const u8 *data) {
-        m_header = *reinterpret_cast<const header_t*>(data);
-    }
+    explicit PacketHeader(const u8 *data) 
+    : m_header { *reinterpret_cast<const header_t*>(data) } {}
 
     /// convert relevant fields to host byte order
     void into_host_endian() { 

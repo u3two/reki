@@ -5,6 +5,7 @@
 #include "protocols/ethernet.hpp"
 #include "protocols/ip.hpp"
 #include "protocols/tcp.hpp"
+#include "protocols/udp.hpp"
 
 #include <memory>
 
@@ -66,8 +67,8 @@ std::unique_ptr<Packet> LinuxPacketStream::next() {
     auto eth = EthernetPacket { std::move(data) };
 
     // this whole "upgrade" process could probably be streamlined into a .upgrade() thing
-    // for every type here, returning maybe something like a pair<Packet, bool> indicating
-    // whether an upgrade was successful and so on.
+    // for every type, returning maybe something like a pair<Packet, bool> to indicate
+    // whether an upgrade was successful
     switch (eth.eth_header().data().ethertype) {
         case static_cast<u16>(EtherType::IPv4): {
             auto ip = IP_Packet { std::move(eth) };
@@ -76,7 +77,7 @@ std::unique_ptr<Packet> LinuxPacketStream::next() {
                     return std::make_unique<TCP_Packet>(std::move(ip));
                 } break;
                 case static_cast<u16>(IP_Protocol::UDP): {
-                    // TODO: UDP
+                    return std::make_unique<UDP_Packet>(std::move(ip));
                 } break;
                 case static_cast<u16>(IP_Protocol::ICMP): {
                     // TODO: ICMP

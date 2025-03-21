@@ -41,3 +41,8 @@ void PacketPrinter::visit(TCP_Packet& a) {
     PacketPrinter::visit(static_cast<TCP_Packet::super&>(a));
     a.tcp_header().print();
 }
+
+void PacketPrinter::visit(UDP_Packet& a) {
+    PacketPrinter::visit(static_cast<TCP_Packet::super&>(a));
+    a.udp_header().print();
+}

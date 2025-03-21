@@ -53,17 +53,17 @@ private:
 public:
     using super = EthernetPacket;
 
-    IP_Packet(std::vector<u8>&& bytes);
-    IP_Packet(super&& sup);
+    explicit IP_Packet(std::vector<u8>&& bytes);
+    explicit IP_Packet(super&& sup);
 
-    IP_Packet(IP_Packet&& other)
+    explicit IP_Packet(IP_Packet&& other)
         : super{std::move(other)}
         , m_header{other.m_header}
     {}
 
     virtual void apply(PacketVisitor& visitor) override;
 
-    const IP_Header& ip_header() { return this->m_header; }
+    const IP_Header& ip_header() const { return this->m_header; }
 };
 
 #endif /* REKI_IP */
