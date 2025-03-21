@@ -15,7 +15,6 @@ using UDP_Header = PacketHeader<UDP_HeaderData>;
 
 template<>
 void UDP_Header::print() const;
-
 template<>
 void UDP_Header::into_host_endian();
 

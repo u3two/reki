@@ -6,6 +6,7 @@
 #include "protocols/ip.hpp"
 #include "protocols/tcp.hpp"
 #include "protocols/udp.hpp"
+#include "protocols/arp.hpp"
 
 #include <memory>
 
@@ -87,7 +88,7 @@ std::unique_ptr<Packet> LinuxPacketStream::next() {
             return std::make_unique<IP_Packet>(std::move(ip));
         } break;
         case static_cast<u16>(EtherType::ARP): {
-            // TODO: ARP
+            return std::make_unique<ARP_Packet>(std::move(eth));
         };
     }
     // unhandled ethertype, return as ethernet packet
