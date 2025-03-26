@@ -1,6 +1,6 @@
 #include "ethernet.hpp"
 
-#include "../visitors/visitor.hpp"
+#include "../visitors/visitors.hpp"
 
 #include <iostream>
 #include <arpa/inet.h>

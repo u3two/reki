@@ -8,6 +8,9 @@
 #include "../protocols/udp.hpp"
 #include "../protocols/arp.hpp"
 
+#include <soci/soci.h>
+#include <soci/sqlite3/soci-sqlite3.h>
+
 class PacketVisitor {
 public:
     virtual ~PacketVisitor() {}
@@ -23,6 +26,21 @@ public:
 class PacketPrinter final : public PacketVisitor {
 public:
     bool hexdump = false;
+
+    void visit(Packet& a) override;
+    void visit(EthernetPacket& a) override;
+    void visit(IP_Packet& a) override;
+    void visit(TCP_Packet& a) override;
+    void visit(UDP_Packet& a) override;
+    void visit(ARP_Packet& a) override;
+};
+
+class DatabaseStore final : public PacketVisitor {
+private:
+    soci::session m_sql;
+public:
+    explicit DatabaseStore(const char *file)
+    : m_sql(soci::sqlite3, file) {}
 
     void visit(Packet& a) override;
     void visit(EthernetPacket& a) override;
