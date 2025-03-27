@@ -8,15 +8,19 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+option(REKI_VENDORED "Use vendored libraries" OFF)
 
-find_package(SQLite3 REQUIRED)
-find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
-find_package(SDL3_ttf REQUIRED CONFIG)
+if (REKI_VENDORED)
+    add_subdirectory(lib/SDL3) # TODO: make this work on nix?
+    add_subdirectory(lib/SDL3-ttf)
+else()
+    find_package(SQLite3 REQUIRED)
+    find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
+    find_package(SDL3_ttf REQUIRED CONFIG)
+endif()
 
 add_subdirectory(lib/soci)
-# add_subdirectory(lib/SDL3) # TODO: make this work on nix?
-# add_subdirectory(lib/SDL3-ttf)
+
 
 file(GLOB_RECURSE SRC src/*.cc)
 

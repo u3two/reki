@@ -8,6 +8,8 @@
 #include "../protocols/udp.hpp"
 #include "../protocols/arp.hpp"
 
+#include "../gui/gui.hpp"
+
 #include <soci/soci.h>
 #include <soci/sqlite3/soci-sqlite3.h>
 
@@ -41,6 +43,18 @@ private:
 public:
     explicit DatabaseStore(const char *file)
     : m_sql(soci::sqlite3, file) {}
+
+    void visit(Packet& a) override;
+    void visit(EthernetPacket& a) override;
+    void visit(IP_Packet& a) override;
+    void visit(TCP_Packet& a) override;
+    void visit(UDP_Packet& a) override;
+    void visit(ARP_Packet& a) override;
+};
+
+class PacketGUIListing final : public PacketVisitor {
+public:
+    PacketListing m_listing {};
 
     void visit(Packet& a) override;
     void visit(EthernetPacket& a) override;

@@ -1,46 +1,51 @@
+#include <atomic>
 #include <iostream>
 
 #include <soci/soci.h>
 #include <soci/sqlite3/soci-sqlite3.h>
+#include <thread>
 
 #include "packet_stream.hpp"
 #include "visitors/visitors.hpp"
+#include "shared.hpp"
 
 #include "gui/gui.hpp"
+
+std::vector<std::unique_ptr<Packet>> PACKET_STORE;
+std::mutex PACKET_STORE_MUTEX;
+
+std::atomic_bool quit = false;
+
+int fetch_packets()
+{
+    auto stream = PacketStream::get();
+    auto printer = PacketPrinter {};
+    printer.hexdump = true;
+
+    while (!quit) {
+        auto optnxt = stream->next();
+        if (optnxt) {
+            std::unique_ptr<Packet> nxt = std::move(*optnxt);
+
+            nxt->apply(printer);
+            std::cout << std::endl;
+
+            std::lock_guard<std::mutex> lck { PACKET_STORE_MUTEX };
+            PACKET_STORE.push_back(std::move(nxt));
+        }
+    }
+
+    return 0;
+}
 
 int main() 
 {
     gui_init();
 
-    return gui_main();
-}
+    std::thread packet_fetcher(fetch_packets);
 
-int main3() 
-{
-    const char *file = "../db/packets.sqlite3";
+    gui_main();
+    quit = true;
 
-    try {
-        soci::session sql(soci::sqlite3, file);
-    } catch (soci::soci_error const& e) {
-        std::cerr << "Connection to \"" << file << "\" failed: "
-                  << e.what() << "\n";
-    }
-    
-    return 0;
-}
-
-int main2()
-{
-    auto stream = PacketStream::get();
-
-    auto printer = PacketPrinter {};
-    printer.hexdump = true;
-
-    for (;;) {
-        auto nxt = stream->next();
-        nxt->apply(printer);
-        std::cout << std::endl;
-    }
-
-    return 0;
+    packet_fetcher.join();
 }
