@@ -7,6 +7,16 @@
 
 #include <arpa/inet.h>
 
+std::string ip_address_to_string(const u8 addr[4])
+{
+    std::ostringstream oss;
+    oss << std::dec;
+    for (u8 i = 0; i < 4; i++)
+        oss << +addr[i]
+            << ((i != 3) ? "." : "");
+    return oss.str();
+}
+
 template<>
 void IP_Header::into_host_endian()
 {
@@ -39,17 +49,8 @@ void IP_Header::print() const
               << "Checksum: 0x" << m_header.checksum
               << std::dec << std::endl;
     
-    std::cout << "Source: ";
-    for (u8 i = 0; i < sizeof(m_header.source_address); i++)
-        std::cout << +m_header.source_address[i]
-                  << ((i != sizeof(m_header.source_address) - 1) ? "." : "");
-    std::cout << std::endl;
-
-    std::cout << "Destination: ";
-    for (u8 i = 0; i < sizeof(m_header.destination_address); i++)
-        std::cout << +m_header.destination_address[i]
-                  << ((i != sizeof(m_header.destination_address) - 1) ? "." : "");
-    std::cout << std::endl;
+    std::cout << "Source: " << ip_address_to_string(m_header.source_address) << std::endl;
+    std::cout << "Destination: " << ip_address_to_string(m_header.destination_address) << std::endl;
 
     std::cout << std::dec;
 }

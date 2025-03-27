@@ -33,6 +33,7 @@ constexpr std::string_view ethertype_to_sv(EtherType et)
 }
 
 std::string mac_to_string(const u8 addr[6]);
+std::string ethertype_to_string(EtherType et);
 
 /// Ethernet frame header data
 struct EthernetHeaderData {

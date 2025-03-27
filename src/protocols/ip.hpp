@@ -1,6 +1,8 @@
 #ifndef REKI_IP
 #define REKI_IP
 
+// TODO: ipv6!!
+
 #include "../packet_header.hpp"
 #include "ethernet.hpp"
 
@@ -20,6 +22,8 @@ constexpr std::string_view ip_proto_to_sv(IP_Protocol ip)
     }
     return "Unknown";
 }
+
+std::string ip_address_to_string(const u8 addr[4]);
 
 /// IPv4 packet header data
 /// https://datatracker.ietf.org/doc/html/rfc791 Section 3.1

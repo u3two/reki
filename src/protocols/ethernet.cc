@@ -19,6 +19,24 @@ std::string mac_to_string(const u8 addr[6])
     return oss.str();
 }
 
+std::string ethertype_to_string(EtherType et)
+{
+    std::ostringstream oss;
+
+    u16 as_u16 = static_cast<u16>(et);
+    if (as_u16 <= 1500) {
+        oss << std::dec << "size(" << as_u16 << ")\n";
+    } else if (as_u16 <= 1535) {
+        oss << "UNDEFINED (malformed packet?)";
+    } else {
+        oss << "0x" << as_u16 
+                  << " (" << ethertype_to_sv(et) << ")"
+                  << std::endl;
+    }
+
+    return oss.str();
+}
+
 EthernetPacket::EthernetPacket(std::vector<u8>&& bytes)
 : super{std::move(bytes)} 
 , m_header(offset_ptr())
@@ -50,16 +68,7 @@ void EthernetHeader::print() const {
     std::cout << "Destination: " << mac_to_string(m_header.destination) << std::endl;
     std::cout << "Source: " << mac_to_string(m_header.source) << std::endl;
 
-    std::cout << "EtherType: ";
-    if (m_header.ethertype <= 1500) {
-        std::cout << std::dec << "size(" << m_header.ethertype << ")\n";
-    } else if (m_header.ethertype <= 1535) {
-        std::cout << "UNDEFINED (malformed packet?)";
-    } else {
-        std::cout << "0x" << m_header.ethertype
-                  << " (" << ethertype_to_sv(EtherType(m_header.ethertype)) << ")"
-                  << std::endl;
-    }
+    std::cout << "EtherType: " << ethertype_to_string(EtherType(m_header.ethertype));
 
     std::cout << std::dec;
 }
