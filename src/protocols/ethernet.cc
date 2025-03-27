@@ -2,8 +2,22 @@
 
 #include "../visitors/visitors.hpp"
 
+#include <ios>
 #include <iostream>
 #include <arpa/inet.h>
+
+#include <sstream>
+
+std::string mac_to_string(const u8 addr[6])
+{
+    std::ostringstream oss;
+    oss << std::uppercase << std::hex;
+    for (u8 i = 0; i < 6; i++)
+        oss << +addr[i]
+            << ((i != 5) ? ":" : "");
+    oss << std::dec;
+    return oss.str();
+}
 
 EthernetPacket::EthernetPacket(std::vector<u8>&& bytes)
 : super{std::move(bytes)} 
@@ -33,17 +47,8 @@ void EthernetHeader::print() const {
 
     std::cout << std::uppercase << std::hex;
 
-    std::cout << "Destination: ";
-    for (int i = 0; i < m_header.destination_size; i++)
-        std::cout << +m_header.destination[i]
-                  << ((i != m_header.destination_size - 1) ? ":" : "");
-    std::cout << std::endl;
-
-    std::cout << "Source: ";
-    for (int i = 0; i < m_header.destination_size; i++)
-        std::cout << +m_header.source[i]
-                  << ((i != m_header.destination_size - 1) ? ":" : "");
-    std::cout << std::endl;
+    std::cout << "Destination: " << mac_to_string(m_header.destination) << std::endl;
+    std::cout << "Source: " << mac_to_string(m_header.source) << std::endl;
 
     std::cout << "EtherType: ";
     if (m_header.ethertype <= 1500) {

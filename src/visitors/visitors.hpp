@@ -12,6 +12,7 @@
 
 #include <soci/soci.h>
 #include <soci/sqlite3/soci-sqlite3.h>
+#include <vector>
 
 class PacketVisitor {
 public:
@@ -25,16 +26,19 @@ public:
     virtual void visit(ARP_Packet& a) = 0;
 };
 
+#define VISITOR_FUNCTIONS \
+    void visit(Packet& a) override; \
+    void visit(EthernetPacket& a) override; \
+    void visit(IP_Packet& a) override; \
+    void visit(TCP_Packet& a) override; \
+    void visit(UDP_Packet& a) override; \
+    void visit(ARP_Packet& a) override;
+
 class PacketPrinter final : public PacketVisitor {
 public:
     bool hexdump = false;
 
-    void visit(Packet& a) override;
-    void visit(EthernetPacket& a) override;
-    void visit(IP_Packet& a) override;
-    void visit(TCP_Packet& a) override;
-    void visit(UDP_Packet& a) override;
-    void visit(ARP_Packet& a) override;
+    VISITOR_FUNCTIONS
 };
 
 class DatabaseStore final : public PacketVisitor {
@@ -44,24 +48,21 @@ public:
     explicit DatabaseStore(const char *file)
     : m_sql(soci::sqlite3, file) {}
 
-    void visit(Packet& a) override;
-    void visit(EthernetPacket& a) override;
-    void visit(IP_Packet& a) override;
-    void visit(TCP_Packet& a) override;
-    void visit(UDP_Packet& a) override;
-    void visit(ARP_Packet& a) override;
+    VISITOR_FUNCTIONS
 };
 
 class PacketGUIListing final : public PacketVisitor {
 public:
     PacketListing m_listing {};
 
-    void visit(Packet& a) override;
-    void visit(EthernetPacket& a) override;
-    void visit(IP_Packet& a) override;
-    void visit(TCP_Packet& a) override;
-    void visit(UDP_Packet& a) override;
-    void visit(ARP_Packet& a) override;
+    VISITOR_FUNCTIONS
+};
+
+class PacketGUIExplorer final : public PacketVisitor {
+private:
+    std::vector<ExplorerItem> items;
+public:
+    VISITOR_FUNCTIONS
 };
 
 #endif /* REKI_VISITOR */

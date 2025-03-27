@@ -48,4 +48,6 @@ int main()
     quit = true;
 
     packet_fetcher.join();
+
+    return 0;
 }

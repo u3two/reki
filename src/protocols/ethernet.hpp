@@ -32,6 +32,8 @@ constexpr std::string_view ethertype_to_sv(EtherType et)
     return "Unknown";
 }
 
+std::string mac_to_string(const u8 addr[6]);
+
 /// Ethernet frame header data
 struct EthernetHeaderData {
     static constexpr auto destination_size = 6;

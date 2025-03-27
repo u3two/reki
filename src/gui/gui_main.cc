@@ -1,9 +1,9 @@
 /* 
 * reki's GUI
 * 
-* The graphical interface is divided into two panes. The top one shows a scrollable list of packets captured in the
-* current session. The bottom one shows information about the currently selected packet, such as its raw data hexdump
-* and header metadata.
+* The graphical interface is divided into two panes. The left one shows a scrollable list of packets captured in the
+* current session (the "Listing"). The right one shows information about the currently selected packet, 
+* such as its raw data hexdump and header metadata (the "Explorer").
 *
 */
 
@@ -17,6 +17,8 @@
 #include <SDL3/SDL_error.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
+#include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <iostream>
 #include <optional>
@@ -36,10 +38,16 @@ struct Bounds {
     i32 x, y, w, h;
 };
 
+class Explorer {
+public:
+    void draw();
+};
+
 class Listing {
 private:
     static constexpr u32 item_height = 20;
     i32 scroll_progress = 0;
+    std::optional<i32> selected {};
 
     i32 packet_count = 0;
 
@@ -47,10 +55,16 @@ private:
     i32 pixel_width();
 public:
     void draw();
+
     Bounds get_bounds();
+    bool in_bounds(i32 mouse_ix, i32 mouse_y);
 
     void scroll_down();
     void scroll_up();
+    void select(i32 mouse_x, i32 mouse_y);
+
+    std::optional<std::reference_wrapper<std::unique_ptr<Packet>>> 
+    get_selected();
 };
 
 struct {
@@ -62,6 +76,7 @@ struct {
     bool redraw = false;
 
     Listing listing;
+    Explorer explorer;
 } G;
 
 int gui_init()
@@ -120,10 +135,12 @@ int draw_text(const char *str, int x, int y)
     SDL_FRect dst;
     SDL_GetTextureSize(texture, &dst.w, &dst.h);
 
+
     dst.x = x;
     dst.y = y;
 
     SDL_RenderTexture(G.renderer, texture, nullptr, &dst);
+    SDL_DestroyTexture(texture);
     return 0;
 }
 
@@ -143,8 +160,36 @@ int draw_text_fn(const char *str, const std::function<SDL_FRect(float, float)> f
     SDL_FRect dst = fn(w, h);
 
     SDL_RenderTexture(G.renderer, texture, nullptr, &dst);
-
+    SDL_DestroyTexture(texture);
     return 0;
+}
+
+void Explorer::draw()
+{
+    Bounds listing_bounds = G.listing.get_bounds();
+
+    SDL_FRect rect = {
+        static_cast<float>(listing_bounds.x + listing_bounds.w),
+        0.f,
+        static_cast<float>(G.win_w - listing_bounds.w),
+        static_cast<float>(G.win_h),
+    };
+
+    SDL_SetRenderDrawColor(G.renderer, 185, 185, 185, 255);
+    SDL_RenderFillRect(G.renderer, &rect);
+
+    auto optsel = G.listing.get_selected();
+    if (!optsel) {
+        draw_text_fn("click to select packet", [&](float w, float h) {
+            return SDL_FRect {
+                rect.x + rect.w / 2 - w / 2,
+                5,
+                w, h
+            };
+        });
+    } else {
+        auto &sel = *optsel;
+    }
 }
 
 i32 Listing::max_items()
@@ -154,7 +199,7 @@ i32 Listing::max_items()
 
 i32 Listing::pixel_width()
 {
-    return G.win_w;
+    return G.win_w / 2;
 }
 
 void Listing::scroll_up() 
@@ -165,10 +210,30 @@ void Listing::scroll_up()
 
 void Listing::scroll_down() 
 {
-    std::cout << this->max_items() << " " << this->packet_count << std::endl;
     if (this->scroll_progress < INT32_MAX && 
         this->scroll_progress + this->max_items() < this->packet_count)
         this->scroll_progress++;
+}
+
+void Listing::select(i32 mouse_x, i32 mouse_y)
+{
+    if (mouse_x > this->pixel_width())
+        return;
+
+    i32 idx = mouse_y / Listing::item_height + this->scroll_progress;
+    if (idx >= this->packet_count)
+        return;
+
+    this->selected = idx;
+}
+
+std::optional<std::reference_wrapper<std::unique_ptr<Packet>>> 
+Listing::get_selected()
+{
+    if (!this->selected)
+        return {};
+
+    return PACKET_STORE.at(*this->selected);
 }
 
 Bounds Listing::get_bounds()
@@ -179,12 +244,21 @@ Bounds Listing::get_bounds()
     };
 }
 
+bool Listing::in_bounds(i32 mouse_x, i32 mouse_y)
+{
+    Bounds listing_bounds = this->get_bounds();
+
+    return (mouse_x > listing_bounds.x && 
+            mouse_x < listing_bounds.x + listing_bounds.w &&
+            mouse_y > listing_bounds.y &&
+            mouse_y < listing_bounds.y + listing_bounds.h);
+}
+
 void Listing::draw() 
 {
     i32 max_items = this->max_items();
     i32 pixel_width = this->pixel_width();
 
-    std::lock_guard<std::mutex> lck { PACKET_STORE_MUTEX };
     this->packet_count = PACKET_STORE.size();
 
     i32 i = 0;
@@ -201,14 +275,21 @@ void Listing::draw()
         p->apply(visitor);
         const PacketListing &lst { visitor.m_listing };
 
-        auto listing_number = i - this->scroll_progress;
+        i32 listing_number = i - this->scroll_progress;
 
         SDL_FRect rect = { 
             0, static_cast<float>(listing_number * item_height),
             static_cast<float>(pixel_width), item_height
         };
         
-        const auto [r, g, b] = lst.rgb;
+        auto [r, g, b] = lst.rgb;
+
+        if (i == this->selected) {
+            r = std::min(r + 30, 255);
+            g = std::min(g + 30, 255);
+            b = std::min(b + 30, 255);
+        }
+
         SDL_SetRenderDrawColor(G.renderer, r, g, b, 255);
         SDL_RenderFillRect(G.renderer, &rect);
 
@@ -228,19 +309,27 @@ void Listing::draw()
     }
 }
 
-void handle_mouse_wheel(const SDL_MouseWheelEvent &wheel)
+void draw_all()
 {
-    Bounds listing_bounds = G.listing.get_bounds();
+    std::lock_guard<std::mutex> lck { PACKET_STORE_MUTEX };
+    G.listing.draw();
+    G.explorer.draw();
+}
 
-    if (wheel.mouse_x > listing_bounds.x && 
-        wheel.mouse_x < listing_bounds.x + listing_bounds.w &&
-        wheel.mouse_y > listing_bounds.y &&
-        wheel.mouse_y < listing_bounds.y + listing_bounds.h
-    ) {
-        if (wheel.y > 0)
+void handle_mouse_wheel(const SDL_MouseWheelEvent &ev)
+{
+    if(G.listing.in_bounds(ev.mouse_x, ev.mouse_y)) {
+        if (ev.y > 0)
             G.listing.scroll_up();
-        else if (wheel.y < 0)
+        else if (ev.y < 0)
             G.listing.scroll_down();
+    }
+}
+
+void handle_mouse_button_down(const SDL_MouseButtonEvent &ev)
+{
+    if(G.listing.in_bounds(ev.x, ev.y)) {
+        G.listing.select(ev.x, ev.y);
     }
 }
 
@@ -266,6 +355,9 @@ int gui_main()
                 case SDL_EVENT_MOUSE_WHEEL: {
                     handle_mouse_wheel(ev.wheel);
                 } break;
+                case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+                    handle_mouse_button_down(ev.button);
+                } break;
                 default: {/* NOP */}
             }
         }
@@ -275,7 +367,7 @@ int gui_main()
             SDL_SetRenderDrawColor(G.renderer, 200, 200, 200, 255);
             SDL_RenderClear(G.renderer);
 
-            G.listing.draw();
+            draw_all();
 
             SDL_RenderPresent(G.renderer);
 

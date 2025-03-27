@@ -2,6 +2,7 @@
 #define REKI_GUI_H
 
 #include <string>
+#include <vector>
 #include "../defs.hpp"
 
 struct PacketListing {
@@ -9,7 +10,12 @@ struct PacketListing {
     std::tuple<u8, u8, u8> rgb;
 };
 
-/// should be called on the main thread prior to gui_main()
+struct ExplorerItem {
+    std::string title;
+    /// key-value
+    std::vector<std::pair<std::string, std::string>> kv;
+};
+
 int gui_init();
 int gui_main();
 
