@@ -52,16 +52,18 @@ public:
 };
 
 class PacketGUIListing final : public PacketVisitor {
-public:
+private:
     PacketListing m_listing {};
+public:
+    const PacketListing &get_listing() { return this->m_listing; };
 
     VISITOR_FUNCTIONS
 };
 
 class PacketGUIExplorer final : public PacketVisitor {
-private:
-    std::vector<ExplorerItem> items;
 public:
+    std::vector<ExplorerItem> items;
+
     VISITOR_FUNCTIONS
 };
 

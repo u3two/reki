@@ -27,8 +27,8 @@ int fetch_packets()
         if (optnxt) {
             std::unique_ptr<Packet> nxt = std::move(*optnxt);
 
-            nxt->apply(printer);
-            std::cout << std::endl;
+            //nxt->apply(printer);
+            //std::cout << std::endl;
 
             std::lock_guard<std::mutex> lck { PACKET_STORE_MUTEX };
             PACKET_STORE.push_back(std::move(nxt));

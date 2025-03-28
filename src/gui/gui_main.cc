@@ -15,14 +15,17 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_error.h>
+#include <SDL3/SDL_pixels.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <iostream>
+#include <iomanip>
 #include <optional>
 #include <functional>
+#include <sstream>
 
 #include "../defs.hpp"
 #include "../shared.hpp"
@@ -39,6 +42,8 @@ struct Bounds {
 };
 
 class Explorer {
+private:
+    static constexpr u32 item_height = 25;
 public:
     void draw();
 };
@@ -61,10 +66,14 @@ public:
 
     void scroll_down();
     void scroll_up();
+
     void select(i32 mouse_x, i32 mouse_y);
 
     std::optional<std::reference_wrapper<std::unique_ptr<Packet>>> 
     get_selected();
+    std::optional<i32> get_selected_id();
+
+    i32 get_packet_count() { return this->packet_count; };
 };
 
 struct {
@@ -73,7 +82,7 @@ struct {
     int win_w = 0, win_h = 0;
     TTF_Font *font = nullptr;
 
-    bool redraw = false;
+    bool redraw = true;
 
     Listing listing;
     Explorer explorer;
@@ -110,9 +119,10 @@ int gui_init()
     return 0;
 }
 
-std::optional<SDL_Texture*> draw_text_make_texture(const char *str)
+std::optional<SDL_Texture*> draw_text_make_texture(const char *str,
+                                                   SDL_Color color = {0,0,0,0})
 {
-    SDL_Surface *surf = TTF_RenderText_Blended(G.font, str, 0, { 0, 0, 0, 0 });
+    SDL_Surface *surf = TTF_RenderText_Blended(G.font, str, 0, color);
     if (!surf) {
         std::cerr << "SDL couldn't create text surface: " << SDL_GetError() << "\n";
         return {};
@@ -146,9 +156,11 @@ int draw_text(const char *str, int x, int y)
 
 /// Renders text at position specified by the function fn.
 /// fn accepts two arguments: the width and height of the texture.
-int draw_text_fn(const char *str, const std::function<SDL_FRect(float, float)> fn)
+int draw_text_fn(const char *str, 
+                 const std::function<SDL_FRect(float, float)> fn,
+                 SDL_Color color = {0,0,0,0})
 {
-    auto opt_texture = draw_text_make_texture(str);
+    auto opt_texture = draw_text_make_texture(str, color);
     if (!opt_texture)
         return -1;
 
@@ -168,7 +180,7 @@ void Explorer::draw()
 {
     Bounds listing_bounds = G.listing.get_bounds();
 
-    SDL_FRect rect = {
+    SDL_FRect OuterRect = {
         static_cast<float>(listing_bounds.x + listing_bounds.w),
         0.f,
         static_cast<float>(G.win_w - listing_bounds.w),
@@ -176,19 +188,48 @@ void Explorer::draw()
     };
 
     SDL_SetRenderDrawColor(G.renderer, 185, 185, 185, 255);
-    SDL_RenderFillRect(G.renderer, &rect);
+    SDL_RenderFillRect(G.renderer, &OuterRect);
 
     auto optsel = G.listing.get_selected();
     if (!optsel) {
         draw_text_fn("click to select packet", [&](float w, float h) {
             return SDL_FRect {
-                rect.x + rect.w / 2 - w / 2,
+                OuterRect.x + OuterRect.w / 2 - w / 2,
                 5,
                 w, h
             };
         });
     } else {
-        auto &sel = *optsel;
+        auto &sel = (*optsel).get();
+        PacketGUIExplorer visitor {};
+
+        sel->apply(visitor);
+
+        i32 draw_ii = 0;
+        for (auto &item : visitor.items) {
+            SDL_FRect HeaderRect = {
+                OuterRect.x, OuterRect.y + Explorer::item_height * draw_ii,
+                OuterRect.w, Explorer::item_height
+            };
+
+            // draw the header
+            SDL_SetRenderDrawColor(G.renderer, 120, 120, 120, 255);
+            SDL_RenderFillRect(G.renderer, &HeaderRect);
+            draw_text(item.title, HeaderRect.x + 5, HeaderRect.y);
+            draw_ii++;
+
+            for (auto &[key, val] : item.kv) {
+                draw_text(key,
+                          HeaderRect.x + 5,
+                          OuterRect.y + Explorer::item_height * draw_ii);
+
+                draw_text(val.c_str(), 
+                          HeaderRect.x + HeaderRect.w / 2,
+                          OuterRect.y + Explorer::item_height * draw_ii);
+
+                draw_ii++;
+            }
+        }
     }
 }
 
@@ -273,7 +314,7 @@ void Listing::draw()
         }
 
         p->apply(visitor);
-        const PacketListing &lst { visitor.m_listing };
+        const PacketListing &lst = visitor.get_listing();
 
         i32 listing_number = i - this->scroll_progress;
 
@@ -293,7 +334,14 @@ void Listing::draw()
         SDL_SetRenderDrawColor(G.renderer, r, g, b, 255);
         SDL_RenderFillRect(G.renderer, &rect);
 
-        draw_text(lst.text.c_str(), 5, listing_number * item_height);
+        u64 first_arrival = PACKET_STORE.at(0)->arrival_time();
+
+        std::stringstream listing_text;
+        listing_text << "T+" << std::setfill('0') << std::setw(5)
+                     << p->arrival_time() - first_arrival << " " << lst.text;
+
+
+        draw_text(listing_text.str().c_str(), 5, listing_number * item_height);
         i++;
     }
 
@@ -312,8 +360,19 @@ void Listing::draw()
 void draw_all()
 {
     std::lock_guard<std::mutex> lck { PACKET_STORE_MUTEX };
-    G.listing.draw();
-    G.explorer.draw();
+    if (G.listing.get_packet_count() != static_cast<i64>(PACKET_STORE.size()))
+        G.redraw = true;
+
+    if (G.redraw) {
+        SDL_SetRenderDrawColor(G.renderer, 200, 200, 200, 255);
+        SDL_RenderClear(G.renderer);
+
+        G.listing.draw();
+        G.explorer.draw();
+
+        SDL_RenderPresent(G.renderer);
+        G.redraw = false;
+    }
 }
 
 void handle_mouse_wheel(const SDL_MouseWheelEvent &ev)
@@ -348,31 +407,26 @@ int gui_main()
                 case SDL_EVENT_QUIT: {
                     quit = true;
                 } break;
+                case SDL_EVENT_WINDOW_EXPOSED: {
+                    G.redraw = true;
+                } break;
                 case SDL_EVENT_WINDOW_RESIZED: {
                     SDL_GetWindowSize(G.window, &G.win_w, &G.win_h);
                     G.redraw = true;
                 } break;
                 case SDL_EVENT_MOUSE_WHEEL: {
                     handle_mouse_wheel(ev.wheel);
+                    G.redraw = true;
                 } break;
                 case SDL_EVENT_MOUSE_BUTTON_DOWN: {
                     handle_mouse_button_down(ev.button);
+                    G.redraw = true;
                 } break;
-                default: {/* NOP */}
+                default: {}
             }
         }
 
-        // TODO: check redraw
-        {
-            SDL_SetRenderDrawColor(G.renderer, 200, 200, 200, 255);
-            SDL_RenderClear(G.renderer);
-
-            draw_all();
-
-            SDL_RenderPresent(G.renderer);
-
-            G.redraw = false;
-        }
+        draw_all();
 
         u64 frame_time = SDL_GetTicks() - frame_start;
         if (frame_time < FPS_DELTA)

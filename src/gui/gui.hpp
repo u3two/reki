@@ -11,9 +11,9 @@ struct PacketListing {
 };
 
 struct ExplorerItem {
-    std::string title;
+    const char *title;
     /// key-value
-    std::vector<std::pair<std::string, std::string>> kv;
+    std::vector<std::pair<const char *, std::string>> kv;
 };
 
 int gui_init();

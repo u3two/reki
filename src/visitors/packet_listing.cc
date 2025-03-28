@@ -25,19 +25,13 @@ void PacketGUIListing::visit(IP_Packet& a) {
 
 void PacketGUIListing::visit(TCP_Packet& a) {
     std::ostringstream oss;
-    oss << "[TCP] source: ";
+    oss << "[TCP] ";
 
     auto &iphdr = a.ip_header().data();
 
-    for (u8 i = 0; i < sizeof(iphdr.source_address); i++)
-        oss << +iphdr.source_address[i]
-            << ((i != sizeof(iphdr.source_address) - 1) ? "." : "");
-
-    oss << " dest: ";
-
-    for (u8 i = 0; i < sizeof(iphdr.destination_address); i++)
-        oss << +iphdr.destination_address[i]
-            << ((i != sizeof(iphdr.destination_address) - 1) ? "." : "");
+    oss << ip_address_to_string(iphdr.source_address)
+        << " -> "
+        << ip_address_to_string(iphdr.destination_address);
 
     m_listing.text = oss.str();
     m_listing.rgb = {200, 60, 110}; // pink-red-ish
@@ -45,25 +39,22 @@ void PacketGUIListing::visit(TCP_Packet& a) {
 
 void PacketGUIListing::visit(UDP_Packet& a) {
     std::ostringstream oss;
-    oss << "[UDP] source: ";
+    oss << "[UDP] ";
 
     auto &iphdr = a.ip_header().data();
 
-    for (u8 i = 0; i < sizeof(iphdr.source_address); i++)
-        oss << +iphdr.source_address[i]
-            << ((i != sizeof(iphdr.source_address) - 1) ? "." : "");
-
-    oss << " dest: ";
-
-    for (u8 i = 0; i < sizeof(iphdr.destination_address); i++)
-        oss << +iphdr.destination_address[i]
-            << ((i != sizeof(iphdr.destination_address) - 1) ? "." : "");
+    oss << ip_address_to_string(iphdr.source_address)
+        << " -> "
+        << ip_address_to_string(iphdr.destination_address);
 
     m_listing.text = oss.str();
     m_listing.rgb = {60, 170, 130}; // blue-green-ish
 }
 
 void PacketGUIListing::visit(ARP_Packet& a) {
-    m_listing.text = "ARP";
+    std::ostringstream oss;
+    oss << "[ARP] protocol: " << a.arp_header().data().protocol_type;
+
+    m_listing.text = oss.str();
     m_listing.rgb = {170, 180, 130}; // very-worn-out-yellow-ish
 }

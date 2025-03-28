@@ -1,10 +1,14 @@
 #include "visitors.hpp"
 
+#include <bitset>
+#include <sstream>
+
 void PacketGUIExplorer::visit([[maybe_unused]] Packet& a) {}
 
 void PacketGUIExplorer::visit(EthernetPacket& a) {
     PacketGUIExplorer::visit(static_cast<EthernetPacket::super&>(a));
-    auto hdr = a.eth_header().data();
+    auto &hdr = a.eth_header().data();
+
     items.emplace_back(ExplorerItem {
         "Ethernet Header",
         {
@@ -17,10 +21,28 @@ void PacketGUIExplorer::visit(EthernetPacket& a) {
 
 void PacketGUIExplorer::visit(IP_Packet& a) {
     PacketGUIExplorer::visit(static_cast<IP_Packet::super&>(a));
-    auto hdr = a.ip_header().data();
+
+    auto &hdr = a.ip_header().data();
+
+    std::stringstream chcksum;
+    chcksum << std::hex << std::uppercase
+            << "0x" << hdr.checksum
+            << std::dec;
+
     items.emplace_back(ExplorerItem {
         "IP Header",
         {
+            {"Version", std::to_string((u16)hdr.version) },
+            {"Header Length", std::to_string((u16)hdr.iheader_length) },
+            {"DSCP", std::to_string((u16)hdr.dscp) },
+            {"ECN", std::to_string((u16)hdr.ecn) },
+            {"Total Length", std::to_string((u16)hdr.total_length) },
+            {"Identification", std::to_string((u16)hdr.identification) },
+            {"Flags", std::bitset<3>(hdr.identification).to_string() },
+            {"Fragment Offset", std::to_string((u16)hdr.fragment_offset) },
+            {"TTL", std::to_string((u16)hdr.ttl) },
+            {"Protocol", std::to_string((u16)hdr.ttl) },
+            {"Checksum", chcksum.str() },
             {"Destination", ip_address_to_string(hdr.destination_address)},
             {"Source", ip_address_to_string(hdr.source_address)},
         }
@@ -28,10 +50,50 @@ void PacketGUIExplorer::visit(IP_Packet& a) {
 }
 
 void PacketGUIExplorer::visit(TCP_Packet& a) {
+    PacketGUIExplorer::visit(static_cast<TCP_Packet::super&>(a));
+
+    auto &hdr = a.tcp_header().data();
+
+    std::stringstream chcksum;
+    chcksum << std::hex << std::uppercase
+            << "0x" << hdr.checksum
+            << std::dec;
+
+    items.emplace_back(ExplorerItem {
+        "TCP Header",
+        {
+            {"Source Port", std::to_string(hdr.source_port)},
+            {"Destination Port", std::to_string(hdr.destination_port)},
+            {"Sequence Number", std::to_string(hdr.sequence_number)},
+            {"ACK Number", std::to_string(hdr.ack_number) },
+            {"Flags", std::bitset<8>(hdr.flags).to_string() },
+            {"Window", std::to_string(hdr.window) },
+            {"Checksum", chcksum.str() },
+        }
+    });
 }
 
 void PacketGUIExplorer::visit(UDP_Packet& a) {
+    PacketGUIExplorer::visit(static_cast<UDP_Packet::super&>(a));
+
+    auto &hdr = a.udp_header().data();
+
+    std::stringstream chcksum;
+    chcksum << std::hex << std::uppercase
+            << "0x" << hdr.checksum
+            << std::dec;
+
+    items.emplace_back(ExplorerItem {
+        "UDP Header",
+        {
+            {"Source Port", std::to_string(hdr.source_port)},
+            {"Destination Port", std::to_string(hdr.destination_port)},
+            {"Length", std::to_string(hdr.length)},
+            {"Checksum", chcksum.str() },
+        }
+    });
 }
 
 void PacketGUIExplorer::visit(ARP_Packet& a) {
+    PacketGUIExplorer::visit(static_cast<ARP_Packet::super&>(a));
 }
