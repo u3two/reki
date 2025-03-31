@@ -3,6 +3,8 @@
 #include <bitset>
 #include <sstream>
 
+#if 0
+
 void PacketGUIExplorer::visit([[maybe_unused]] Packet& a) {}
 
 void PacketGUIExplorer::visit(EthernetPacket& a) {
@@ -97,3 +99,5 @@ void PacketGUIExplorer::visit(UDP_Packet& a) {
 void PacketGUIExplorer::visit(ARP_Packet& a) {
     PacketGUIExplorer::visit(static_cast<ARP_Packet::super&>(a));
 }
+
+#endif

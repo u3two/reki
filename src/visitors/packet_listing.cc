@@ -2,28 +2,28 @@
 
 #include <sstream>
 
-void PacketGUIListing::visit(Packet& a) {
-    m_listing.text = "BASE/UNIMPLEMENTED";
-    m_listing.rgb = {50, 50, 50};
+void ListingInfoFetcher::visit([[maybe_unused]] Packet& a) {
+    m_listing.info = "BASE/UNIMPLEMENTED";
+    m_listing.rgb = {50, 50, 50, 255};
 }
 
-void PacketGUIListing::visit(EthernetPacket& a) {
+void ListingInfoFetcher::visit(EthernetPacket& a) {
     std::ostringstream oss;
     oss << "[Ethernet] ethertype: " << a.eth_header().data().ethertype;
 
-    m_listing.text = oss.str();
-    m_listing.rgb = {200, 140, 64}; // orange-ish
+    m_listing.info = oss.str();
+    m_listing.rgb = {200, 140, 64, 255}; // orange-ish
 }
 
-void PacketGUIListing::visit(IP_Packet& a) {
+void ListingInfoFetcher::visit(IP_Packet& a) {
     std::ostringstream oss;
     oss << "[IP] protocol: " << a.ip_header().data().protocol;
 
-    m_listing.text = oss.str();
-    m_listing.rgb = {80, 130, 170}; // blue-ish
+    m_listing.info = oss.str();
+    m_listing.rgb = {80, 130, 170, 255}; // blue-ish
 }
 
-void PacketGUIListing::visit(TCP_Packet& a) {
+void ListingInfoFetcher::visit(TCP_Packet& a) {
     std::ostringstream oss;
     oss << "[TCP] ";
 
@@ -33,11 +33,11 @@ void PacketGUIListing::visit(TCP_Packet& a) {
         << " -> "
         << ip_address_to_string(iphdr.destination_address);
 
-    m_listing.text = oss.str();
-    m_listing.rgb = {200, 60, 110}; // pink-red-ish
+    m_listing.info = oss.str();
+    m_listing.rgb = {200, 60, 110, 255}; // pink-red-ish
 }
 
-void PacketGUIListing::visit(UDP_Packet& a) {
+void ListingInfoFetcher::visit(UDP_Packet& a) {
     std::ostringstream oss;
     oss << "[UDP] ";
 
@@ -47,14 +47,14 @@ void PacketGUIListing::visit(UDP_Packet& a) {
         << " -> "
         << ip_address_to_string(iphdr.destination_address);
 
-    m_listing.text = oss.str();
-    m_listing.rgb = {60, 170, 130}; // blue-green-ish
+    m_listing.info = oss.str();
+    m_listing.rgb = {60, 170, 130, 255}; // blue-green-ish
 }
 
-void PacketGUIListing::visit(ARP_Packet& a) {
+void ListingInfoFetcher::visit(ARP_Packet& a) {
     std::ostringstream oss;
     oss << "[ARP] protocol: " << a.arp_header().data().protocol_type;
 
-    m_listing.text = oss.str();
-    m_listing.rgb = {170, 180, 130}; // very-worn-out-yellow-ish
+    m_listing.info = oss.str();
+    m_listing.rgb = {170, 180, 130, 255}; // very-worn-out-yellow-ish
 }

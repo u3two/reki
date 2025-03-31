@@ -8,11 +8,10 @@
 #include "../protocols/udp.hpp"
 #include "../protocols/arp.hpp"
 
-#include "../gui/gui.hpp"
+#include "../gui/listing.hpp"
 
 #include <soci/soci.h>
 #include <soci/sqlite3/soci-sqlite3.h>
-#include <vector>
 
 class PacketVisitor {
 public:
@@ -51,20 +50,20 @@ public:
     VISITOR_FUNCTIONS
 };
 
-class PacketGUIListing final : public PacketVisitor {
+class ListingInfoFetcher final : public PacketVisitor {
 private:
-    PacketListing m_listing {};
+    gui::ListingInfo m_listing {};
 public:
-    const PacketListing &get_listing() { return this->m_listing; };
+    const gui::ListingInfo &get_listing() { return this->m_listing; };
 
     VISITOR_FUNCTIONS
 };
 
-class PacketGUIExplorer final : public PacketVisitor {
-public:
-    std::vector<ExplorerItem> items;
-
-    VISITOR_FUNCTIONS
-};
+// class PacketGUIExplorer final : public PacketVisitor {
+// public:
+//     std::vector<ExplorerItem> items;
+// 
+//     VISITOR_FUNCTIONS
+// };
 
 #endif /* REKI_VISITOR */

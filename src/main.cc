@@ -7,13 +7,11 @@
 
 #include "packet_stream.hpp"
 #include "visitors/visitors.hpp"
-#include "shared.hpp"
-
 #include "gui/gui.hpp"
 
-std::vector<std::unique_ptr<Packet>> PACKET_STORE;
-std::mutex PACKET_STORE_MUTEX;
+#include "appstate.hpp"
 
+AppState APP_STATE;
 std::atomic_bool quit = false;
 
 int fetch_packets()
@@ -30,8 +28,8 @@ int fetch_packets()
             //nxt->apply(printer);
             //std::cout << std::endl;
 
-            std::lock_guard<std::mutex> lck { PACKET_STORE_MUTEX };
-            PACKET_STORE.push_back(std::move(nxt));
+            std::lock_guard<std::mutex> lck { APP_STATE.mutex };
+            APP_STATE.packet_store.push_back(std::move(nxt));
         }
     }
 
@@ -40,14 +38,13 @@ int fetch_packets()
 
 int main() 
 {
-    gui_init();
+    gui::init();
 
     std::thread packet_fetcher(fetch_packets);
 
-    gui_main();
+    gui::launch();
     quit = true;
 
     packet_fetcher.join();
-
     return 0;
 }
