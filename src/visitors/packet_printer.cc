@@ -51,3 +51,8 @@ void PacketPrinter::visit(ARP_Packet& a) {
     PacketPrinter::visit(static_cast<ARP_Packet::super&>(a));
     a.arp_header().print();
 }
+
+void PacketPrinter::visit(ICMP_Packet& a) {
+    PacketPrinter::visit(static_cast<ARP_Packet::super&>(a));
+    a.icmp_header().print();
+}

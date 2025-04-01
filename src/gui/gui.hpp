@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <iostream>
+#include <variant>
 
 namespace gui {
 
@@ -18,6 +19,24 @@ constexpr i32 DEFAULT_WINDOW_WIDTH = 800;
 constexpr i32 DEFAULT_WINDOW_HEIGHT = 600;
 
 constexpr SDL_Color COLOR_DEFAULT_BG = { 200, 200, 200, 255 };
+
+enum class PaneSpanType {
+    Absolute,
+    Ratio
+};
+
+struct PaneSpan {
+private:
+    using variant_t = std::variant<int, float>;
+    PaneSpanType m_type;
+    variant_t m_value;
+public:
+    explicit PaneSpan(i32 value): m_value(value) {}
+    explicit PaneSpan(float value): m_value(value) {}
+
+    PaneSpanType type() const { return this->m_type; } 
+    const variant_t &value() const { return this->m_value; } 
+};
 
 class Node {
 public:

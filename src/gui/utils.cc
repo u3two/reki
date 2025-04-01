@@ -42,3 +42,24 @@ int gui::draw_text(const char *str, int x, int y)
     SDL_DestroyTexture(texture);
     return 0;
 }
+/// Renders text at position specified by the function fn.
+/// fn accepts two arguments: the width and height of the texture.
+int gui::draw_text_fn(const char *str, 
+                 const std::function<SDL_FRect(float, float)> fn,
+                 SDL_Color color)
+{
+    auto opt_texture = draw_text_make_texture(str, color);
+    if (!opt_texture)
+        return -1;
+
+    SDL_Texture *texture = *opt_texture;
+
+    float w, h;
+    SDL_GetTextureSize(texture, &w, &h);
+
+    SDL_FRect dst = fn(w, h);
+
+    SDL_RenderTexture(GUI_STATE.renderer, texture, nullptr, &dst);
+    SDL_DestroyTexture(texture);
+    return 0;
+}

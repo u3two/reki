@@ -3,15 +3,13 @@
 #include <bitset>
 #include <sstream>
 
-#if 0
-
 void PacketGUIExplorer::visit([[maybe_unused]] Packet& a) {}
 
 void PacketGUIExplorer::visit(EthernetPacket& a) {
     PacketGUIExplorer::visit(static_cast<EthernetPacket::super&>(a));
     auto &hdr = a.eth_header().data();
 
-    items.emplace_back(ExplorerItem {
+    items.emplace_back(gui::ExplorerField {
         "Ethernet Header",
         {
             {"EtherType", ethertype_to_string(EtherType(hdr.ethertype))},
@@ -31,7 +29,7 @@ void PacketGUIExplorer::visit(IP_Packet& a) {
             << "0x" << hdr.checksum
             << std::dec;
 
-    items.emplace_back(ExplorerItem {
+    items.emplace_back(gui::ExplorerField {
         "IP Header",
         {
             {"Version", std::to_string((u16)hdr.version) },
@@ -61,7 +59,7 @@ void PacketGUIExplorer::visit(TCP_Packet& a) {
             << "0x" << hdr.checksum
             << std::dec;
 
-    items.emplace_back(ExplorerItem {
+    items.emplace_back(gui::ExplorerField {
         "TCP Header",
         {
             {"Source Port", std::to_string(hdr.source_port)},
@@ -85,7 +83,7 @@ void PacketGUIExplorer::visit(UDP_Packet& a) {
             << "0x" << hdr.checksum
             << std::dec;
 
-    items.emplace_back(ExplorerItem {
+    items.emplace_back(gui::ExplorerField {
         "UDP Header",
         {
             {"Source Port", std::to_string(hdr.source_port)},
@@ -100,4 +98,6 @@ void PacketGUIExplorer::visit(ARP_Packet& a) {
     PacketGUIExplorer::visit(static_cast<ARP_Packet::super&>(a));
 }
 
-#endif
+void PacketGUIExplorer::visit(ICMP_Packet& a) {
+    PacketGUIExplorer::visit(static_cast<ICMP_Packet::super&>(a));
+}

@@ -1,5 +1,5 @@
-#ifndef REKI_ARP
-#define REKI_ARP
+#ifndef REKI_ARP_H
+#define REKI_ARP_H
 
 #include "../defs.hpp"
 #include "ethernet.hpp"
@@ -53,4 +53,4 @@ public:
     const ARP_Header& arp_header() const { return this->m_header; }
 };
 
-#endif /* REKI_ARP */
+#endif /* REKI_ARP_H */

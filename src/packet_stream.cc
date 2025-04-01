@@ -3,6 +3,7 @@
 #include "defs.hpp"
 
 #include "protocols/ethernet.hpp"
+#include "protocols/icmp.hpp"
 #include "protocols/ip.hpp"
 #include "protocols/tcp.hpp"
 #include "protocols/udp.hpp"
@@ -92,7 +93,7 @@ std::optional<std::unique_ptr<Packet>> LinuxPacketStream::next() {
                     return std::make_unique<UDP_Packet>(std::move(ip));
                 } break;
                 case static_cast<u16>(IP_Protocol::ICMP): {
-                    // TODO: ICMP
+                    return std::make_unique<ICMP_Packet>(std::move(ip));
                 } break;
             }
             // unhandled ip protocol, return as ip packet

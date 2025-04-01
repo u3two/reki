@@ -7,8 +7,10 @@
 #include "../protocols/tcp.hpp"
 #include "../protocols/udp.hpp"
 #include "../protocols/arp.hpp"
+#include "../protocols/icmp.hpp"
 
 #include "../gui/listing.hpp"
+#include "../gui/explorer.hpp"
 
 #include <soci/soci.h>
 #include <soci/sqlite3/soci-sqlite3.h>
@@ -23,7 +25,9 @@ public:
     virtual void visit(TCP_Packet& a) = 0;
     virtual void visit(UDP_Packet& a) = 0;
     virtual void visit(ARP_Packet& a) = 0;
+    virtual void visit(ICMP_Packet& a) = 0;
 };
+
 
 #define VISITOR_FUNCTIONS \
     void visit(Packet& a) override; \
@@ -31,7 +35,9 @@ public:
     void visit(IP_Packet& a) override; \
     void visit(TCP_Packet& a) override; \
     void visit(UDP_Packet& a) override; \
-    void visit(ARP_Packet& a) override;
+    void visit(ARP_Packet& a) override; \
+    void visit(ICMP_Packet& a) override; \
+
 
 class PacketPrinter final : public PacketVisitor {
 public:
@@ -59,11 +65,12 @@ public:
     VISITOR_FUNCTIONS
 };
 
-// class PacketGUIExplorer final : public PacketVisitor {
-// public:
-//     std::vector<ExplorerItem> items;
-// 
-//     VISITOR_FUNCTIONS
-// };
+// TODO: rename this lol
+class PacketGUIExplorer final : public PacketVisitor {
+public:
+    std::vector<gui::ExplorerField> items;
+
+    VISITOR_FUNCTIONS
+};
 
 #endif /* REKI_VISITOR */

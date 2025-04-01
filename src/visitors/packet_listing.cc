@@ -58,3 +58,11 @@ void ListingInfoFetcher::visit(ARP_Packet& a) {
     m_listing.info = oss.str();
     m_listing.rgb = {170, 180, 130, 255}; // very-worn-out-yellow-ish
 }
+
+void ListingInfoFetcher::visit(ICMP_Packet& a) {
+    std::ostringstream oss;
+    oss << "[ICMP] protocol: " << +a.icmp_header().data().type;
+
+    m_listing.info = oss.str();
+    m_listing.rgb = {35, 190, 168, 255}; // light-blue-or-cyan-?-ish
+}

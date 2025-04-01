@@ -18,3 +18,6 @@ void DatabaseStore::visit(UDP_Packet& a) {
 
 void DatabaseStore::visit(ARP_Packet& a) {
 }
+
+void DatabaseStore::visit(ICMP_Packet& a) {
+}

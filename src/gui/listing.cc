@@ -50,6 +50,7 @@ void Listing::handle_event(SDL_Event &ev)
                 if (idx >= m_packet_count)
                     return;
                 this->m_selected = idx;
+                GUI_STATE.listing_selected_idx = idx;
             }
         } break;
         case SDL_EVENT_MOUSE_WHEEL: {
@@ -110,7 +111,7 @@ void Listing::draw(SDL_FRect bounds)
                      << p->arrival_time() - first_arrival << " " << lst.info;
 
 
-        draw_text(listing_text.str().c_str(), 5, rect.y);
+        draw_text(listing_text.str().c_str(), rect.x + 5, rect.y);
         i++;
     }
 }
