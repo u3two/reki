@@ -48,7 +48,11 @@ public:
     /// get data ptr to current offset
     const u8 *offset_ptr() const { return m_bytes.data() + m_offset; }
 
+    /// get the packet arrival time (in seconds since the unix epoch)
     u64 arrival_time() const { return m_arrival_time; }
+
+    /// get the combined size of all the headers, in bytes
+    i32 header_size() const { return m_offset; }
 
     /// Apply a visitor.
     virtual void apply(PacketVisitor& visitor);

@@ -67,6 +67,11 @@ void Listing::handle_event(SDL_Event &ev)
 
 void Listing::draw(SDL_FRect bounds)
 {
+    SDL_SetRenderDrawColor(GUI_STATE.renderer, 
+                           COLOR_DEFAULT_BG.r, COLOR_DEFAULT_BG.g, COLOR_DEFAULT_BG.b,
+                           COLOR_DEFAULT_BG.a);
+    SDL_RenderFillRect(GUI_STATE.renderer, &bounds);
+
     this->m_bounds = bounds;
     m_packet_count = APP_STATE.packet_store.size();
 

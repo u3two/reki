@@ -6,6 +6,9 @@
 
 #include "../visitors/visitors.hpp"
 
+#include <iomanip>
+#include <math.h>
+
 using namespace gui;
 
 void Explorer::handle_event(SDL_Event &ev)
@@ -58,6 +61,47 @@ void Explorer::draw(SDL_FRect bounds)
                           bounds.y + Explorer::ITEM_HEIGHT * draw_ii);
 
                 draw_ii++;
+            }
+        }
+
+        // draw hexdump
+        SDL_FRect HexdumpRect {
+            bounds.x, bounds.y + bounds.h * 3.f/4,
+            bounds.w, bounds.h / 4
+        };
+
+        SDL_SetRenderDrawColor(GUI_STATE.renderer, 185, 185, 185, 255);
+        SDL_RenderFillRect(GUI_STATE.renderer, &HexdumpRect);
+
+        SDL_FRect HexdumpHeaderRect { HexdumpRect };
+        HexdumpHeaderRect.h = Explorer::ITEM_HEIGHT;
+
+        SDL_SetRenderDrawColor(GUI_STATE.renderer, 90, 90, 90, 255);
+        SDL_RenderFillRect(GUI_STATE.renderer, &HexdumpHeaderRect);
+
+        draw_text("<HEXDUMP>", HexdumpHeaderRect.x + 5, HexdumpHeaderRect.y);
+
+        constexpr u32 BYTES_PER_ROW = 16;
+
+        std::stringstream hexdump;
+        hexdump << std::uppercase << std::hex << "00 | ";
+
+        i32 i = 0;
+        for (u8 c : sel->bytes()) {
+            i++;
+
+            hexdump << std::setw(2) << std::setfill('0')
+                << +c << " ";
+
+            if (!(i % BYTES_PER_ROW) || i == sel->header_size()) {
+                draw_text(hexdump.str().c_str(), 
+                          HexdumpHeaderRect.x + 8, 
+                          HexdumpHeaderRect.y + std::ceil((float)i / BYTES_PER_ROW) * Explorer::ITEM_HEIGHT);
+                hexdump.str("");
+                hexdump << std::setw(2) << std::setfill('0') << i << " | ";
+
+                if (i == sel->header_size())
+                    break;
             }
         }
     }
