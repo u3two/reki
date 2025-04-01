@@ -10,6 +10,8 @@ struct AppState {
     /// Contains all the packets captured in the current session.
     std::vector<std::unique_ptr<Packet>> packet_store;
 
+    
+
     /// Global appstate mutex; needs to be taken in order to safely access
     /// any of the data stored in this structure.
     std::mutex mutex;

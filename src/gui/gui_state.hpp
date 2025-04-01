@@ -4,7 +4,7 @@
 #include "gui.hpp"
 #include "listing.hpp"
 #include "explorer.hpp"
-#include "../packet.hpp"
+#include "menubar.hpp"
 
 #include <memory>
 #include <optional>
@@ -19,10 +19,10 @@ struct State {
     i32 win_h = DEFAULT_WINDOW_HEIGHT;
 
     std::shared_ptr<Node> layout = std::make_shared<HorizontalSplit>(
-        0.1,
-        std::make_shared<ColoredPane>(SDL_Color {140, 140, 140, 255}),
+        PaneSpan { 30 },
+        std::make_shared<MenuBar>(),
         std::make_shared<VerticalSplit>(
-            0.5,
+            PaneSpan { 0.5f },
             std::make_shared<Explorer>(),
             std::make_shared<Listing>()
         )

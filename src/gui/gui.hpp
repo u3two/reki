@@ -25,14 +25,22 @@ enum class PaneSpanType {
     Ratio
 };
 
+// TODO: better name?
 struct PaneSpan {
 private:
-    using variant_t = std::variant<int, float>;
-    PaneSpanType m_type;
+    using variant_t = std::variant<i32, float>;
     variant_t m_value;
+    PaneSpanType m_type;
 public:
-    explicit PaneSpan(i32 value): m_value(value) {}
-    explicit PaneSpan(float value): m_value(value) {}
+    explicit PaneSpan(i32 value)
+    : m_value(value) 
+    , m_type(PaneSpanType::Absolute)
+    {}
+
+    explicit PaneSpan(float value)
+    : m_value(value) 
+    , m_type(PaneSpanType::Ratio)
+    {}
 
     PaneSpanType type() const { return this->m_type; } 
     const variant_t &value() const { return this->m_value; } 
@@ -48,19 +56,29 @@ public:
 
 class HorizontalSplit : public Node {
 private:
-    float m_ratio;
+    PaneSpan m_span;
     std::shared_ptr<Node> m_up, m_down;
 public:
-    explicit HorizontalSplit(float ratio, std::shared_ptr<Node> up, std::shared_ptr<Node> down)
-    : m_ratio { ratio }
+    explicit HorizontalSplit(PaneSpan span, std::shared_ptr<Node> up, std::shared_ptr<Node> down)
+    : m_span { span }
     , m_up { up }
     , m_down { down }
     {}
 
     void draw(SDL_FRect bounds) override {
+        float height_bound;
+        switch (m_span.type()) {
+            case PaneSpanType::Absolute: {
+                height_bound = bounds.y + std::get<i32>(m_span.value());
+            } break;
+            case PaneSpanType::Ratio: {
+                height_bound = bounds.h * std::get<float>(m_span.value());
+            } break;
+        }
+
         SDL_FRect upper_bounds = {
             bounds.x, bounds.y,
-            bounds.w , bounds.h * m_ratio,
+            bounds.w , height_bound,
         };
         m_up->draw(upper_bounds);
 
@@ -80,19 +98,29 @@ public:
 
 class VerticalSplit : public Node {
 private:
-    float m_ratio;
+    PaneSpan m_span;
     std::shared_ptr<Node> m_left, m_right;
 public:
-    explicit VerticalSplit(float ratio, std::shared_ptr<Node> left, std::shared_ptr<Node> right)
-    : m_ratio { ratio }
+    explicit VerticalSplit(PaneSpan span, std::shared_ptr<Node> left, std::shared_ptr<Node> right)
+    : m_span { span }
     , m_left { left }
     , m_right { right }
     {}
 
     void draw(SDL_FRect bounds)  override {
+        float width_bound;
+        switch (m_span.type()) {
+            case PaneSpanType::Absolute: {
+                width_bound = bounds.x + std::get<i32>(m_span.value());
+            } break;
+            case PaneSpanType::Ratio: {
+                width_bound = bounds.w * std::get<float>(m_span.value());
+            } break;
+        }
+
         SDL_FRect left_bounds = {
             bounds.x, bounds.y,
-            bounds.w * m_ratio, bounds.h,
+            width_bound, bounds.h,
         };
         m_left->draw(left_bounds);
 
