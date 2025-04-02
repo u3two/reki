@@ -6,8 +6,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
-#include <memory>
 #include <iostream>
+#include <memory>
 #include <variant>
 
 namespace gui {
@@ -18,7 +18,7 @@ constexpr u64 FPS_DELTA = 1000/FPS;
 constexpr i32 DEFAULT_WINDOW_WIDTH = 800;
 constexpr i32 DEFAULT_WINDOW_HEIGHT = 600;
 
-constexpr SDL_Color COLOR_DEFAULT_BG = { 200, 200, 200, 255 };
+constexpr SDL_Color COLOR_DEFAULT_BG = { 195, 195, 195, 255 };
 
 enum class PaneSpanType {
     Absolute,
@@ -66,7 +66,7 @@ public:
     {}
 
     void draw(SDL_FRect bounds) override {
-        float height_bound;
+        float height_bound {};
         switch (m_span.type()) {
             case PaneSpanType::Absolute: {
                 height_bound = bounds.y + std::get<i32>(m_span.value());
@@ -108,7 +108,7 @@ public:
     {}
 
     void draw(SDL_FRect bounds)  override {
-        float width_bound;
+        float width_bound {};
         switch (m_span.type()) {
             case PaneSpanType::Absolute: {
                 width_bound = bounds.x + std::get<i32>(m_span.value());

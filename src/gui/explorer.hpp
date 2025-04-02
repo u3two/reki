@@ -16,7 +16,7 @@ struct ExplorerField {
 class Explorer : public Node {
 private:
     static constexpr u32 ITEM_HEIGHT = 25;
-    static constexpr SDL_Color COLOR_BG = { 185, 185, 185, 255 };
+    static constexpr SDL_Color COLOR_BG = { 225, 225, 225, 255 };
 public:
     void draw(SDL_FRect bounds) override;
     void handle_event(SDL_Event &ev) override;

@@ -1,5 +1,4 @@
 #include "gui.hpp"
-#include "SDL3/SDL_rect.h"
 #include "gui_state.hpp"
 
 #include "../appstate.hpp"
@@ -28,6 +27,7 @@ void gui::init()
     }
 
     SDL_SetWindowResizable(GUI_STATE.window, true);
+    SDL_SetRenderDrawBlendMode(GUI_STATE.renderer, SDL_BLENDMODE_BLEND);
 
     if (TTF_Init() == false) {
         std::cerr << "SDL_TTF init failure: " << SDL_GetError() << "\n";
@@ -43,8 +43,9 @@ void gui::init()
 
 static void draw_all()
 {
-    //if (!GUI_STATE.redraw)
-    //    return;
+    if (!GUI_STATE.redraw)
+        return;
+
     std::lock_guard<std::mutex> lck { APP_STATE.mutex };
 
     SDL_SetRenderDrawColor(GUI_STATE.renderer, 
@@ -75,9 +76,9 @@ void gui::launch()
                 case SDL_EVENT_QUIT: {
                     GUI_STATE.quit = true;
                 } break;
-                // case SDL_EVENT_WINDOW_EXPOSED: {
-                //     GUI_STATE.redraw = true;
-                // } break;
+                case SDL_EVENT_WINDOW_EXPOSED: {
+                    GUI_STATE.redraw = true;
+                } break;
                 case SDL_EVENT_WINDOW_RESIZED: {
                     SDL_GetWindowSize(GUI_STATE.window, &GUI_STATE.win_w, &GUI_STATE.win_h);
                     GUI_STATE.redraw = true;

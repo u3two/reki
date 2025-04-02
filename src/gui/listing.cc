@@ -18,14 +18,6 @@ i32 Listing::max_items()
     return m_bounds.h / Listing::ITEM_HEIGHT + 1;
 }
 
-bool Listing::in_bounds(i32 mouse_x, i32 mouse_y)
-{
-    return (mouse_x > m_bounds.x && 
-            mouse_x < m_bounds.x + m_bounds.w &&
-            mouse_y > m_bounds.y &&
-            mouse_y < m_bounds.y + m_bounds.h);
-}
-
 void Listing::scroll_up() 
 {
     if (this->m_scroll_offset > 0)
@@ -35,7 +27,7 @@ void Listing::scroll_up()
 void Listing::scroll_down()
 {
     if (this->m_scroll_offset < INT32_MAX && 
-        this->m_scroll_offset + this->max_items() < this->m_packet_count)
+        this->m_scroll_offset + this->max_items() - 1 < this->m_packet_count)
         this->m_scroll_offset++;
 }
 
@@ -45,7 +37,17 @@ void Listing::handle_event(SDL_Event &ev)
         /// select the element
         case SDL_EVENT_MOUSE_BUTTON_DOWN: {
             auto &mouse = ev.button;
-            if (this->in_bounds(mouse.x, mouse.y)) {
+
+            // check if the scrollbar was clicked
+            if (in_bounds(m_scrollbar_bounds, mouse.x, mouse.y)) {
+                this->m_scroll_offset = std::clamp(
+                    (float(mouse.y - m_scrollbar_bounds.y) / m_scrollbar_bounds.h) * m_packet_count,
+                    0.f, static_cast<float>(this->m_packet_count - this->max_items() + 1));
+                return; 
+            }
+
+            // .. elsewhere in the window should be interpreted as selection
+            if (in_bounds(m_bounds, mouse.x, mouse.y)) {
                 i32 idx = (mouse.y - this->m_bounds.y) / Listing::ITEM_HEIGHT + m_scroll_offset;
                 if (idx >= m_packet_count)
                     return;
@@ -55,7 +57,7 @@ void Listing::handle_event(SDL_Event &ev)
         } break;
         case SDL_EVENT_MOUSE_WHEEL: {
             auto &wheel = ev.wheel; 
-            if (this->in_bounds(wheel.mouse_x, wheel.mouse_y)) {
+            if (in_bounds(m_bounds, wheel.mouse_x, wheel.mouse_y)) {
                 if (wheel.y > 0)
                     this->scroll_up();
                 else if (wheel.y < 0)
@@ -118,5 +120,30 @@ void Listing::draw(SDL_FRect bounds)
 
         draw_text(listing_text.str().c_str(), rect.x + 5, rect.y);
         i++;
+    }
+
+    // draw the scrollbar
+    if (this->m_packet_count > max_items) {
+        SDL_FRect scrollbar_outer = {
+            bounds.x + bounds.w - Listing::SCROLLBAR_WIDTH, bounds.y,
+            Listing::SCROLLBAR_WIDTH, bounds.h
+        };
+
+        SDL_SetRenderDrawColor(GUI_STATE.renderer, 150, 150, 150, 100);
+        SDL_RenderFillRect(GUI_STATE.renderer, &scrollbar_outer);
+
+        this->m_scrollbar_bounds = scrollbar_outer;
+
+        float inner_height = ((float)max_items / m_packet_count) * scrollbar_outer.h;
+
+        SDL_FRect scrollbar_inner = {
+            bounds.x + bounds.w - Listing::SCROLLBAR_WIDTH, 
+            bounds.y + ((float)m_scroll_offset / m_packet_count) * scrollbar_outer.h,
+            Listing::SCROLLBAR_WIDTH, 
+            inner_height
+        };
+
+        SDL_SetRenderDrawColor(GUI_STATE.renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(GUI_STATE.renderer, &scrollbar_inner);
     }
 }

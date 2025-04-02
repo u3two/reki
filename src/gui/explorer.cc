@@ -64,13 +64,14 @@ void Explorer::draw(SDL_FRect bounds)
             }
         }
 
+        // TODO: extract into its own pane?
         // draw hexdump
         SDL_FRect HexdumpRect {
             bounds.x, bounds.y + bounds.h * 3.f/4,
             bounds.w, bounds.h / 4
         };
 
-        SDL_SetRenderDrawColor(GUI_STATE.renderer, 185, 185, 185, 255);
+        SDL_SetRenderDrawColor(GUI_STATE.renderer, 210, 210, 210, 255);
         SDL_RenderFillRect(GUI_STATE.renderer, &HexdumpRect);
 
         SDL_FRect HexdumpHeaderRect { HexdumpRect };

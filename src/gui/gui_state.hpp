@@ -31,6 +31,10 @@ struct State {
     /// an idx of the currently selected packet (in the listing)
     std::optional<u64> listing_selected_idx;
 
+    /// count of currently displayed packets. If this is different than the actual count
+    /// (most likely obtained from APP_STATE), we should redraw and update this.
+    u32 displayed_packets;
+
     bool quit = false;
     bool redraw = true;
 };
