@@ -26,7 +26,6 @@ private:
     void scroll_down();
     void scroll_up();
 
-    i32 m_packet_count;
     std::optional<i32> m_selected;
 
     i32 max_items();

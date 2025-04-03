@@ -13,8 +13,7 @@
 
 using namespace gui;
 
-i32 Listing::max_items()
-{
+i32 Listing::max_items() {
     return m_bounds.h / Listing::ITEM_HEIGHT + 1;
 }
 
@@ -27,7 +26,7 @@ void Listing::scroll_up()
 void Listing::scroll_down()
 {
     if (this->m_scroll_offset < INT32_MAX && 
-        this->m_scroll_offset + this->max_items() - 1 < this->m_packet_count)
+        this->m_scroll_offset + this->max_items() - 1 < GUI_STATE.displayed_packets)
         this->m_scroll_offset++;
 }
 
@@ -41,15 +40,15 @@ void Listing::handle_event(SDL_Event &ev)
             // check if the scrollbar was clicked
             if (in_bounds(m_scrollbar_bounds, mouse.x, mouse.y)) {
                 this->m_scroll_offset = std::clamp(
-                    (float(mouse.y - m_scrollbar_bounds.y) / m_scrollbar_bounds.h) * m_packet_count,
-                    0.f, static_cast<float>(this->m_packet_count - this->max_items() + 1));
+                    (float(mouse.y - m_scrollbar_bounds.y) / m_scrollbar_bounds.h) * GUI_STATE.displayed_packets,
+                    0.f, static_cast<float>(GUI_STATE.displayed_packets - this->max_items() + 1));
                 return; 
             }
 
             // .. elsewhere in the window should be interpreted as selection
             if (in_bounds(m_bounds, mouse.x, mouse.y)) {
                 i32 idx = (mouse.y - this->m_bounds.y) / Listing::ITEM_HEIGHT + m_scroll_offset;
-                if (idx >= m_packet_count)
+                if (idx >= GUI_STATE.displayed_packets)
                     return;
                 this->m_selected = idx;
                 GUI_STATE.listing_selected_idx = idx;
@@ -75,7 +74,7 @@ void Listing::draw(SDL_FRect bounds)
     SDL_RenderFillRect(GUI_STATE.renderer, &bounds);
 
     this->m_bounds = bounds;
-    m_packet_count = APP_STATE.packet_store.size();
+    GUI_STATE.displayed_packets = APP_STATE.packet_store.size();
 
     i32 max_items = this->max_items();
 
@@ -123,7 +122,7 @@ void Listing::draw(SDL_FRect bounds)
     }
 
     // draw the scrollbar
-    if (this->m_packet_count > max_items) {
+    if (GUI_STATE.displayed_packets > max_items) {
         SDL_FRect scrollbar_outer = {
             bounds.x + bounds.w - Listing::SCROLLBAR_WIDTH, bounds.y,
             Listing::SCROLLBAR_WIDTH, bounds.h
@@ -134,11 +133,11 @@ void Listing::draw(SDL_FRect bounds)
 
         this->m_scrollbar_bounds = scrollbar_outer;
 
-        float inner_height = ((float)max_items / m_packet_count) * scrollbar_outer.h;
+        float inner_height = ((float)max_items / GUI_STATE.displayed_packets) * scrollbar_outer.h;
 
         SDL_FRect scrollbar_inner = {
             bounds.x + bounds.w - Listing::SCROLLBAR_WIDTH, 
-            bounds.y + ((float)m_scroll_offset / m_packet_count) * scrollbar_outer.h,
+            bounds.y + ((float)m_scroll_offset / GUI_STATE.displayed_packets) * scrollbar_outer.h,
             Listing::SCROLLBAR_WIDTH, 
             inner_height
         };
