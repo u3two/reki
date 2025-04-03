@@ -6,6 +6,7 @@
 
 #include "../visitors/visitors.hpp"
 
+#include <SDL3/SDL_events.h>
 #include <iomanip>
 #include <math.h>
 
@@ -13,7 +14,18 @@ using namespace gui;
 
 void Explorer::handle_event(SDL_Event &ev)
 {
-    (void)ev;
+    switch (ev.type) {
+        case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+            auto &mouse = ev.button;
+            if (in_bounds(m_bounds, mouse.x, mouse.y)) {
+                // check if a header was clicked (so that we can fold/unfold it)
+                u32 header_idx = (mouse.y - m_bounds.y) / Explorer::ITEM_HEIGHT;
+
+                if (header_idx < m_folded.size())
+                    m_folded[header_idx] = !m_folded[header_idx];
+            }
+        } break;
+    }
 }
 
 void Explorer::draw(SDL_FRect bounds)
@@ -23,6 +35,7 @@ void Explorer::draw(SDL_FRect bounds)
                            Explorer::COLOR_BG.b, Explorer::COLOR_BG.a);
     SDL_RenderFillRect(GUI_STATE.renderer, &bounds);
 
+    m_bounds = bounds;
     
     if (!GUI_STATE.listing_selected_idx) {
         draw_text_fn("click to select packet", [&](float w, float h) {
@@ -38,30 +51,45 @@ void Explorer::draw(SDL_FRect bounds)
 
         sel->apply(visitor);
 
-        i32 draw_ii = 0;
+        u32 draw_ii = 0;
+        u32 item_ii = 0;
         for (auto &item : visitor.items) {
+            bool folded = true;
+            if (m_folded.size() == item_ii) {
+                // first iter since new draw, default to folding.
+                m_folded.push_back(true);
+            } else {
+                folded = m_folded.at(item_ii);
+            }
+
             SDL_FRect HeaderRect = {
                 bounds.x, bounds.y + Explorer::ITEM_HEIGHT * draw_ii,
                 bounds.w, Explorer::ITEM_HEIGHT
             };
 
+            std::stringstream hdr_stream;
+            hdr_stream << (folded ? "[SHOW] " : "[HIDE] ") << item.title;
+
             // draw the header
             SDL_SetRenderDrawColor(GUI_STATE.renderer, 120, 120, 120, 255);
             SDL_RenderFillRect(GUI_STATE.renderer, &HeaderRect);
-            draw_text(item.title, HeaderRect.x + 5, HeaderRect.y);
+            draw_text(hdr_stream.str().c_str(), HeaderRect.x + 5, HeaderRect.y);
             draw_ii++;
 
-            for (auto &[key, val] : item.kv) {
-                draw_text(key,
-                          HeaderRect.x + 5,
-                          bounds.y + Explorer::ITEM_HEIGHT * draw_ii);
+            if (!folded) {
+                for (auto &[key, val] : item.kv) {
+                    draw_text(key,
+                              HeaderRect.x + 5,
+                              bounds.y + Explorer::ITEM_HEIGHT * draw_ii);
 
-                draw_text(val.c_str(), 
-                          HeaderRect.x + HeaderRect.w / 2,
-                          bounds.y + Explorer::ITEM_HEIGHT * draw_ii);
+                    draw_text(val.c_str(), 
+                              HeaderRect.x + HeaderRect.w / 2,
+                              bounds.y + Explorer::ITEM_HEIGHT * draw_ii);
 
-                draw_ii++;
+                    draw_ii++;
+                }
             }
+            item_ii++;
         }
 
         // TODO: extract into its own pane?

@@ -13,7 +13,7 @@
 
 using namespace gui;
 
-i32 Listing::max_items() {
+u32 Listing::max_items() {
     return m_bounds.h / Listing::ITEM_HEIGHT + 1;
 }
 
@@ -47,7 +47,7 @@ void Listing::handle_event(SDL_Event &ev)
 
             // .. elsewhere in the window should be interpreted as selection
             if (in_bounds(m_bounds, mouse.x, mouse.y)) {
-                i32 idx = (mouse.y - this->m_bounds.y) / Listing::ITEM_HEIGHT + m_scroll_offset;
+                u32 idx = (mouse.y - this->m_bounds.y) / Listing::ITEM_HEIGHT + m_scroll_offset;
                 if (idx >= GUI_STATE.displayed_packets)
                     return;
                 this->m_selected = idx;
@@ -76,9 +76,9 @@ void Listing::draw(SDL_FRect bounds)
     this->m_bounds = bounds;
     GUI_STATE.displayed_packets = APP_STATE.packet_store.size();
 
-    i32 max_items = this->max_items();
+    u32 max_items = this->max_items();
 
-    i32 i = 0;
+    u32 i = 0;
     ListingInfoFetcher visitor {};
     for (auto &p : APP_STATE.packet_store) {
         if (i == max_items + this->m_scroll_offset)

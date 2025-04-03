@@ -22,13 +22,13 @@ private:
     SDL_FRect m_bounds;
     SDL_FRect m_scrollbar_bounds;
 
-    i32 m_scroll_offset;
+    u32 m_scroll_offset;
     void scroll_down();
     void scroll_up();
 
     std::optional<i32> m_selected;
 
-    i32 max_items();
+    u32 max_items();
 public:
     Listing()
     : m_bounds {}, m_scroll_offset(0), m_selected {}
