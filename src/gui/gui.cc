@@ -67,43 +67,40 @@ static void draw_all()
     GUI_STATE.redraw = false;
 }
 
-void gui::launch()
+u64 gui::draw_frame()
 {
-    if (!GUI_STATE.window || !GUI_STATE.renderer)
-        throw std::runtime_error("GUI not initialized?");
-
-    u64 frame_start;
+    u64 frame_start = SDL_GetTicks();
     SDL_Event ev;
-    while (!GUI_STATE.quit) {
-        frame_start = SDL_GetTicks();
-        while (SDL_PollEvent(&ev)) {
-            switch (ev.type) {
-                case SDL_EVENT_QUIT: {
-                    GUI_STATE.quit = true;
-                } break;
-                case SDL_EVENT_WINDOW_EXPOSED: {
-                    GUI_STATE.redraw = true;
-                } break;
-                case SDL_EVENT_WINDOW_RESIZED: {
-                    SDL_GetWindowSize(GUI_STATE.window, &GUI_STATE.win_w, &GUI_STATE.win_h);
-                    GUI_STATE.redraw = true;
-                } break;
-                case SDL_EVENT_MOUSE_WHEEL:
-                case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-                    GUI_STATE.layout->handle_event(ev);
-                    GUI_STATE.redraw = true;
-                } break;
-                default: {}
-            }
+    while (SDL_PollEvent(&ev)) {
+        switch (ev.type) {
+            case SDL_EVENT_QUIT: {
+                APP_STATE.run = false;
+                return 0;
+            } break;
+            case SDL_EVENT_WINDOW_EXPOSED: {
+                GUI_STATE.redraw = true;
+            } break;
+            case SDL_EVENT_WINDOW_RESIZED: {
+                SDL_GetWindowSize(GUI_STATE.window, &GUI_STATE.win_w, &GUI_STATE.win_h);
+                GUI_STATE.redraw = true;
+            } break;
+            case SDL_EVENT_MOUSE_WHEEL:
+            case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+                GUI_STATE.layout->handle_event(ev);
+                GUI_STATE.redraw = true;
+            } break;
+            default: {}
         }
-
-        draw_all();
-
-        u64 frame_time = SDL_GetTicks() - frame_start;
-        if (frame_time < FPS_DELTA)
-            SDL_Delay(FPS_DELTA - frame_time);
     }
 
+    draw_all();
+
+    // frametime
+    return SDL_GetTicks() - frame_start;
+}
+
+void gui::destroy()
+{
     SDL_DestroyRenderer(GUI_STATE.renderer);
     SDL_DestroyWindow(GUI_STATE.window);
     SDL_Quit();

@@ -21,9 +21,7 @@ public:
 
 class MenuBar : public Node {
 private:
-    static constexpr SDL_Color COLOR_BG = { 155, 155, 155, 255 };
-
-
+    static constexpr SDL_Color COLOR_BG = { 175, 175, 175, 255 };
 public:
     void draw(SDL_FRect bounds) override;
     void handle_event(SDL_Event &ev) override;

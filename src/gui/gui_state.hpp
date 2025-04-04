@@ -35,7 +35,6 @@ struct State {
     /// (most likely obtained from APP_STATE), we should redraw and update this.
     u32 displayed_packets;
 
-    bool quit = false;
     bool redraw = true;
 };
 

@@ -152,8 +152,11 @@ public:
 /// initialize the graphical interface.
 void init();
 
-/// launch/open the window and start drawing.
-void launch();
+/// clean up and destroy the window.
+void destroy();
+
+/// draw the next frame, returns <frame time in ms, should quit flag>.
+u64 draw_frame();
 
 }
 

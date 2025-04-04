@@ -5,15 +5,16 @@
 
 #include <mutex>
 #include <memory>
+#include <atomic>
 
 struct AppState {
     /// Contains all the packets captured in the current session.
     std::vector<std::unique_ptr<Packet>> packet_store;
 
-    
+    std::atomic_bool run;
 
     /// Global appstate mutex; needs to be taken in order to safely access
-    /// any of the data stored in this structure.
+    /// any of the (non-atomic) data stored in this structure.
     std::mutex mutex;
 };
 

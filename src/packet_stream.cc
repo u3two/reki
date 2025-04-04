@@ -28,6 +28,7 @@ std::unique_ptr<PacketStream> PacketStream::get()
 #endif
 
 #ifdef _WIN32
+    static_assert(false, "WIN32 NOT IMPLEMENTED");
     return std::make_unique<WindowsPacketStream>();
 #endif
 }
@@ -41,12 +42,6 @@ LinuxPacketStream::LinuxPacketStream()
         perror("opening socket");
         throw std::runtime_error("failed to create AF_PACKET socket");
     }
-
-    struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 100 * 1000; // 100ms
-    // acceptable for now but this should be solved with futures I think
-    setsockopt(this->m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 }
 
 LinuxPacketStream::~LinuxPacketStream() 
@@ -54,15 +49,13 @@ LinuxPacketStream::~LinuxPacketStream()
     close(this->m_sockfd);
 }
 
-std::optional<std::vector<u8>> LinuxPacketStream::fetch_next() 
+std::vector<u8> LinuxPacketStream::fetch_next() 
 {
     std::vector<u8> buff;
     buff.resize(8192);
 
     ssize_t recvd = recv(this->m_sockfd, buff.data(), buff.capacity(), 0);
     if (recvd == -1) {
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
-            return {};
         perror("receiving from sock");
         throw std::runtime_error("recv() failure");
     }
@@ -71,13 +64,11 @@ std::optional<std::vector<u8>> LinuxPacketStream::fetch_next()
     return buff;
 }
 
-std::optional<std::unique_ptr<Packet>> LinuxPacketStream::next() {
+std::unique_ptr<Packet> LinuxPacketStream::next() {
     auto data = this->fetch_next();
-    if (!data)
-        return {};
 
     // assume for now that all packets coming our way are ethernet packets.
-    auto eth = EthernetPacket { std::move(*data) };
+    auto eth = EthernetPacket { std::move(data) };
 
     // this whole "upgrade" process could probably be streamlined into a .upgrade() thing
     // for every type, returning maybe something like a pair<Packet, bool> to indicate
