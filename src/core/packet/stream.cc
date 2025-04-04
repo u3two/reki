@@ -1,5 +1,5 @@
 // TODO: separate into two files? (linux_packet_stream.cc, etc.)
-#include "packet_stream.hpp"
+#include "stream.hpp"
 #include "defs.hpp"
 
 #include "protocols/ethernet.hpp"
