@@ -1,44 +1,24 @@
-#include <atomic>
-#include <iostream>
-
 #include <soci/soci.h>
 #include <soci/sqlite3/soci-sqlite3.h>
 #include <thread>
+#include <unistd.h>
 
 #include "packet_stream.hpp"
-#include "visitors/visitors.hpp"
 #include "gui/gui.hpp"
 
 #include "appstate.hpp"
 
 AppState APP_STATE;
-std::atomic_bool quit = false;
 
-int fetch_packets()
+int fetch_packets(int cancelfd)
 {
-    auto stream = PacketStream::get();
-    auto printer = PacketPrinter {};
-    printer.hexdump = true;
+    auto stream = PacketStream::create(cancelfd);
 
-    while (!quit) {
-        auto optnxt = stream->next();
-        if (optnxt) {
-            std::unique_ptr<Packet> nxt = std::move(*optnxt);
-
-            // nxt->apply(printer);
-            // std::cout << std::endl;
-
-            std::lock_guard<std::mutex> lck { APP_STATE.mutex };
-            APP_STATE.packet_store.push_back(std::move(nxt));
-        }
+    while (auto optnxt = stream->next()) {
+        std::lock_guard<std::mutex> lck { APP_STATE.mutex };
+        APP_STATE.packet_store.push_back(std::move(*optnxt));
     }
 
-    return 0;
-}
-
-int main2()
-{
-    fetch_packets();
     return 0;
 }
 
@@ -46,11 +26,15 @@ int main()
 {
     gui::init();
 
-    std::thread packet_fetcher(fetch_packets);
+    /// TODO: wrap in some class?
+    int cancelfds[2];
+    pipe(cancelfds);
+
+    std::thread packet_fetcher(fetch_packets, cancelfds[0]);
 
     gui::launch();
-    quit = true;
 
+    write(cancelfds[1], "#", 1);
     packet_fetcher.join();
     return 0;
 }
