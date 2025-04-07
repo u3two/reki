@@ -15,7 +15,7 @@ struct ICMP_HeaderData {
 
 /// Incomplete, see RFC 792
 enum class ICMP_Type {
-    EchoReply,
+    EchoReply = 0,
     DestinationUnreachable = 3,
     SourceQuench = 4,
     RedirectMessage = 5,
@@ -25,6 +25,22 @@ enum class ICMP_Type {
     TimeExceeded = 11,
     Traceroute = 30,
 };
+
+constexpr std::string_view icmp_type_to_sv(ICMP_Type type)
+{
+    switch(type) {
+        case ICMP_Type::EchoReply: return "EchoReply";
+        case ICMP_Type::DestinationUnreachable: return "DestinationUnreachable";
+        case ICMP_Type::SourceQuench: return "SourceQuench";
+        case ICMP_Type::RedirectMessage: return "RedirectMessage";
+        case ICMP_Type::EchoRequest: return "EchoRequest";
+        case ICMP_Type::RouterAdvertisement: return "RouterAdvertisement";
+        case ICMP_Type::RouterSolicitation: return "RouterSolicitation";
+        case ICMP_Type::TimeExceeded: return "TimeExceeded";
+        case ICMP_Type::Traceroute: return "Traceroute";
+    }
+    return "Unknown";
+}
 
 using ICMP_Header = PacketHeader<ICMP_HeaderData>;
 

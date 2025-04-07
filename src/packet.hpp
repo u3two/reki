@@ -42,7 +42,7 @@ public:
         , m_arrival_time(std::time(NULL))
     {}
 
-    /// get an immutable span of the packet's raw data
+    /// get an immutable reference to the packet's raw data
     const std::vector<u8>& bytes() const { return m_bytes; }
 
     /// get data ptr to current offset

@@ -46,14 +46,19 @@ public:
     const variant_t &value() const { return this->m_value; } 
 };
 
+/// A generic, drawable "node" type. That can be drawn inherit from this class.
+/// This includes classes used for determining the layout (splits, etc.)
 class Node {
 public:
     virtual ~Node() {};
 
     virtual void draw(SDL_FRect bounds) = 0;
+    /// NOTE: events passed to this function are not necessarily destined just for this
+    ///       particular node. Implementations should filter on eg. bounds.
     virtual void handle_event(SDL_Event &ev) = 0;
 };
 
+/// Horizontal split with a specific span/ratio.
 class HorizontalSplit : public Node {
 private:
     PaneSpan m_span;
@@ -95,7 +100,7 @@ public:
     }
 };
 
-
+/// Vertical split with a specific span/ratio.
 class VerticalSplit : public Node {
 private:
     PaneSpan m_span;
@@ -137,6 +142,7 @@ public:
     }
 };
 
+/// A single-colored pane used for layout debugging.
 class ColoredPane : public Node {
 private:
     SDL_Color m_color;

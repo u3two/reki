@@ -100,4 +100,23 @@ void PacketGUIExplorer::visit(ARP_Packet& a) {
 
 void PacketGUIExplorer::visit(ICMP_Packet& a) {
     PacketGUIExplorer::visit(static_cast<ICMP_Packet::super&>(a));
+
+    auto &hdr = a.icmp_header().data();
+
+    std::stringstream strtype;
+    strtype << +hdr.type << " (" << icmp_type_to_sv(ICMP_Type(hdr.type)) << ") ";
+
+    std::stringstream chcksum;
+    chcksum << std::hex << std::uppercase
+            << "0x" << hdr.checksum
+            << std::dec;
+
+    items.emplace_back(gui::ExplorerField {
+        "ICMP Header",
+        {
+            {"Type", strtype.str()},
+            {"Code", std::to_string(hdr.code)},
+            {"Checksum", chcksum.str()},
+        }
+    });
 }
