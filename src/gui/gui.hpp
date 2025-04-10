@@ -1,22 +1,166 @@
 #ifndef REKI_GUI_H
 #define REKI_GUI_H
 
-#include <string>
-#include <vector>
 #include "../defs.hpp"
 
-struct PacketListing {
-    std::string text;
-    std::tuple<u8, u8, u8> rgb;
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
+
+#include <iostream>
+#include <memory>
+#include <variant>
+
+namespace gui {
+
+constexpr u64 FPS = 60;
+constexpr u64 FPS_DELTA = 1000/FPS;
+
+constexpr i32 DEFAULT_WINDOW_WIDTH = 800;
+constexpr i32 DEFAULT_WINDOW_HEIGHT = 600;
+
+constexpr SDL_Color COLOR_DEFAULT_BG = { 195, 195, 195, 255 };
+
+enum class PaneSpanType {
+    Absolute,
+    Ratio
 };
 
-struct ExplorerItem {
-    const char *title;
-    /// key-value
-    std::vector<std::pair<const char *, std::string>> kv;
+// TODO: better name?
+struct PaneSpan {
+private:
+    using variant_t = std::variant<i32, float>;
+    variant_t m_value;
+    PaneSpanType m_type;
+public:
+    explicit PaneSpan(i32 value)
+    : m_value(value) 
+    , m_type(PaneSpanType::Absolute)
+    {}
+
+    explicit PaneSpan(float value)
+    : m_value(value) 
+    , m_type(PaneSpanType::Ratio)
+    {}
+
+    PaneSpanType type() const { return this->m_type; } 
+    const variant_t &value() const { return this->m_value; } 
 };
 
-int gui_init();
-int gui_main();
+/// A generic, drawable "node" type. That can be drawn inherit from this class.
+/// This includes classes used for determining the layout (splits, etc.)
+class Node {
+public:
+    virtual ~Node() {};
 
-#endif /* REKI_GUI_H */
+    virtual void draw(SDL_FRect bounds) = 0;
+    /// NOTE: events passed to this function are not necessarily destined just for this
+    ///       particular node. Implementations should filter on eg. bounds.
+    virtual void handle_event(SDL_Event &ev) = 0;
+};
+
+/// Horizontal split with a specific span/ratio.
+class HorizontalSplit : public Node {
+private:
+    PaneSpan m_span;
+    std::shared_ptr<Node> m_up, m_down;
+public:
+    explicit HorizontalSplit(PaneSpan span, std::shared_ptr<Node> up, std::shared_ptr<Node> down)
+    : m_span { span }
+    , m_up { up }
+    , m_down { down }
+    {}
+
+    void draw(SDL_FRect bounds) override {
+        float height_bound {};
+        switch (m_span.type()) {
+            case PaneSpanType::Absolute: {
+                height_bound = bounds.y + std::get<i32>(m_span.value());
+            } break;
+            case PaneSpanType::Ratio: {
+                height_bound = bounds.h * std::get<float>(m_span.value());
+            } break;
+        }
+
+        SDL_FRect upper_bounds = {
+            bounds.x, bounds.y,
+            bounds.w , height_bound,
+        };
+        m_up->draw(upper_bounds);
+
+        SDL_FRect lower_bounds = {
+            bounds.x, bounds.y + upper_bounds.h,
+            bounds.w, bounds.h - upper_bounds.h
+        };
+        m_down->draw(lower_bounds);
+    }
+    
+    void handle_event(SDL_Event &ev) override {
+        this->m_up->handle_event(ev);
+        this->m_down->handle_event(ev);
+    }
+};
+
+/// Vertical split with a specific span/ratio.
+class VerticalSplit : public Node {
+private:
+    PaneSpan m_span;
+    std::shared_ptr<Node> m_left, m_right;
+public:
+    explicit VerticalSplit(PaneSpan span, std::shared_ptr<Node> left, std::shared_ptr<Node> right)
+    : m_span { span }
+    , m_left { left }
+    , m_right { right }
+    {}
+
+    void draw(SDL_FRect bounds)  override {
+        float width_bound {};
+        switch (m_span.type()) {
+            case PaneSpanType::Absolute: {
+                width_bound = bounds.x + std::get<i32>(m_span.value());
+            } break;
+            case PaneSpanType::Ratio: {
+                width_bound = bounds.w * std::get<float>(m_span.value());
+            } break;
+        }
+
+        SDL_FRect left_bounds = {
+            bounds.x, bounds.y,
+            width_bound, bounds.h,
+        };
+        m_left->draw(left_bounds);
+
+        SDL_FRect right_bounds = {
+            bounds.x + left_bounds.w, bounds.y,
+            bounds.w - left_bounds.w, bounds.h,
+        };
+        m_right->draw(right_bounds);
+    }
+
+    void handle_event(SDL_Event &ev) override {
+        this->m_left->handle_event(ev);
+        this->m_right->handle_event(ev);
+    }
+};
+
+/// A single-colored pane used for layout debugging.
+class ColoredPane : public Node {
+private:
+    SDL_Color m_color;
+public:
+    explicit ColoredPane(SDL_Color color)
+        : m_color(color)
+    {}
+
+    void draw(SDL_FRect bounds) override;
+    void handle_event([[maybe_unused]] SDL_Event &ev) override {};
+};
+
+/// initialize the graphical interface.
+void init();
+
+/// launch/open the window and start drawing.
+void launch();
+
+}
+
+#endif

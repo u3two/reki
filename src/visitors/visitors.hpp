@@ -7,12 +7,15 @@
 #include "../protocols/tcp.hpp"
 #include "../protocols/udp.hpp"
 #include "../protocols/arp.hpp"
+#include "../protocols/icmp.hpp"
 
-#include "../gui/gui.hpp"
+#include "../gui/listing.hpp"
+#include "../gui/explorer.hpp"
 
 #include <soci/soci.h>
 #include <soci/sqlite3/soci-sqlite3.h>
-#include <vector>
+
+namespace visitors {
 
 class PacketVisitor {
 public:
@@ -24,7 +27,9 @@ public:
     virtual void visit(TCP_Packet& a) = 0;
     virtual void visit(UDP_Packet& a) = 0;
     virtual void visit(ARP_Packet& a) = 0;
+    virtual void visit(ICMP_Packet& a) = 0;
 };
+
 
 #define VISITOR_FUNCTIONS \
     void visit(Packet& a) override; \
@@ -32,9 +37,11 @@ public:
     void visit(IP_Packet& a) override; \
     void visit(TCP_Packet& a) override; \
     void visit(UDP_Packet& a) override; \
-    void visit(ARP_Packet& a) override;
+    void visit(ARP_Packet& a) override; \
+    void visit(ICMP_Packet& a) override; \
 
-class PacketPrinter final : public PacketVisitor {
+
+class Printer final : public PacketVisitor {
 public:
     bool hexdump = false;
 
@@ -51,20 +58,22 @@ public:
     VISITOR_FUNCTIONS
 };
 
-class PacketGUIListing final : public PacketVisitor {
+class ListingData final : public PacketVisitor {
 private:
-    PacketListing m_listing {};
+    gui::ListingData m_listing {};
 public:
-    const PacketListing &get_listing() { return this->m_listing; };
+    const gui::ListingData &get_listing() { return this->m_listing; };
 
     VISITOR_FUNCTIONS
 };
 
-class PacketGUIExplorer final : public PacketVisitor {
+class ExplorerData final : public PacketVisitor {
 public:
-    std::vector<ExplorerItem> items;
+    std::vector<gui::ExplorerData> items;
 
     VISITOR_FUNCTIONS
 };
+
+}
 
 #endif /* REKI_VISITOR */

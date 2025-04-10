@@ -1,5 +1,5 @@
-#ifndef REKI_ARP
-#define REKI_ARP
+#ifndef REKI_ARP_H
+#define REKI_ARP_H
 
 #include "../defs.hpp"
 #include "ethernet.hpp"
@@ -48,9 +48,9 @@ public:
     explicit ARP_Packet(std::vector<u8>&& bytes);
     explicit ARP_Packet(super&& sup);
 
-    virtual void apply(PacketVisitor& visitor) override;
+    virtual void apply(visitors::PacketVisitor& visitor) override;
 
     const ARP_Header& arp_header() const { return this->m_header; }
 };
 
-#endif /* REKI_ARP */
+#endif /* REKI_ARP_H */

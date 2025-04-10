@@ -3,13 +3,15 @@
 #include <bitset>
 #include <sstream>
 
-void PacketGUIExplorer::visit([[maybe_unused]] Packet& a) {}
+namespace visitors {
 
-void PacketGUIExplorer::visit(EthernetPacket& a) {
-    PacketGUIExplorer::visit(static_cast<EthernetPacket::super&>(a));
+void ExplorerData::visit([[maybe_unused]] Packet& a) {}
+
+void ExplorerData::visit(EthernetPacket& a) {
+    ExplorerData::visit(static_cast<EthernetPacket::super&>(a));
     auto &hdr = a.eth_header().data();
 
-    items.emplace_back(ExplorerItem {
+    items.emplace_back(gui::ExplorerData {
         "Ethernet Header",
         {
             {"EtherType", ethertype_to_string(EtherType(hdr.ethertype))},
@@ -19,8 +21,8 @@ void PacketGUIExplorer::visit(EthernetPacket& a) {
     });
 }
 
-void PacketGUIExplorer::visit(IP_Packet& a) {
-    PacketGUIExplorer::visit(static_cast<IP_Packet::super&>(a));
+void ExplorerData::visit(IP_Packet& a) {
+    ExplorerData::visit(static_cast<IP_Packet::super&>(a));
 
     auto &hdr = a.ip_header().data();
 
@@ -29,7 +31,7 @@ void PacketGUIExplorer::visit(IP_Packet& a) {
             << "0x" << hdr.checksum
             << std::dec;
 
-    items.emplace_back(ExplorerItem {
+    items.emplace_back(gui::ExplorerData {
         "IP Header",
         {
             {"Version", std::to_string((u16)hdr.version) },
@@ -49,8 +51,8 @@ void PacketGUIExplorer::visit(IP_Packet& a) {
     });
 }
 
-void PacketGUIExplorer::visit(TCP_Packet& a) {
-    PacketGUIExplorer::visit(static_cast<TCP_Packet::super&>(a));
+void ExplorerData::visit(TCP_Packet& a) {
+    ExplorerData::visit(static_cast<TCP_Packet::super&>(a));
 
     auto &hdr = a.tcp_header().data();
 
@@ -59,7 +61,7 @@ void PacketGUIExplorer::visit(TCP_Packet& a) {
             << "0x" << hdr.checksum
             << std::dec;
 
-    items.emplace_back(ExplorerItem {
+    items.emplace_back(gui::ExplorerData {
         "TCP Header",
         {
             {"Source Port", std::to_string(hdr.source_port)},
@@ -73,8 +75,8 @@ void PacketGUIExplorer::visit(TCP_Packet& a) {
     });
 }
 
-void PacketGUIExplorer::visit(UDP_Packet& a) {
-    PacketGUIExplorer::visit(static_cast<UDP_Packet::super&>(a));
+void ExplorerData::visit(UDP_Packet& a) {
+    ExplorerData::visit(static_cast<UDP_Packet::super&>(a));
 
     auto &hdr = a.udp_header().data();
 
@@ -83,7 +85,7 @@ void PacketGUIExplorer::visit(UDP_Packet& a) {
             << "0x" << hdr.checksum
             << std::dec;
 
-    items.emplace_back(ExplorerItem {
+    items.emplace_back(gui::ExplorerData {
         "UDP Header",
         {
             {"Source Port", std::to_string(hdr.source_port)},
@@ -94,6 +96,31 @@ void PacketGUIExplorer::visit(UDP_Packet& a) {
     });
 }
 
-void PacketGUIExplorer::visit(ARP_Packet& a) {
-    PacketGUIExplorer::visit(static_cast<ARP_Packet::super&>(a));
+void ExplorerData::visit(ARP_Packet& a) {
+    ExplorerData::visit(static_cast<ARP_Packet::super&>(a));
 }
+
+void ExplorerData::visit(ICMP_Packet& a) {
+    ExplorerData::visit(static_cast<ICMP_Packet::super&>(a));
+
+    auto &hdr = a.icmp_header().data();
+
+    std::stringstream strtype;
+    strtype << +hdr.type << " (" << icmp_type_to_sv(ICMP_Type(hdr.type)) << ") ";
+
+    std::stringstream chcksum;
+    chcksum << std::hex << std::uppercase
+            << "0x" << hdr.checksum
+            << std::dec;
+
+    items.emplace_back(gui::ExplorerData {
+        "ICMP Header",
+        {
+            {"Type", strtype.str()},
+            {"Code", std::to_string(hdr.code)},
+            {"Checksum", chcksum.str()},
+        }
+    });
+}
+
+} /* namespace visitors */

@@ -73,7 +73,7 @@ IP_Packet::IP_Packet(super&& sup)
     m_offset += sizeof(IP_Header);
 }
 
-void IP_Packet::apply(PacketVisitor &visitor) 
+void IP_Packet::apply(visitors::PacketVisitor &visitor) 
 {
     visitor.visit(*this);
 }
