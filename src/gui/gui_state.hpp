@@ -18,15 +18,14 @@ struct State {
     i32 win_w = DEFAULT_WINDOW_WIDTH; 
     i32 win_h = DEFAULT_WINDOW_HEIGHT;
 
-    std::shared_ptr<Node> layout = std::make_shared<HorizontalSplit>(
+    std::shared_ptr<Node> layout = /* std::make_shared<HorizontalSplit>(
         PaneSpan { 30 },
-        std::make_shared<MenuBar>(),
+        std::make_shared<MenuBar>(), */
         std::make_shared<VerticalSplit>(
             PaneSpan { 0.5f },
             std::make_shared<Explorer>(),
             std::make_shared<Listing>()
-        )
-    );
+        );
 
     /// an idx of the currently selected packet (in the listing)
     std::optional<u64> listing_selected_idx;

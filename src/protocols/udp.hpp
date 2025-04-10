@@ -27,7 +27,7 @@ public:
     explicit UDP_Packet(std::vector<u8>&& bytes);
     explicit UDP_Packet(super&& sup);
 
-    virtual void apply(PacketVisitor& visitor) override;
+    virtual void apply(visitors::PacketVisitor& visitor) override;
 
     const UDP_Header& udp_header() const { return this->m_header; }
 };

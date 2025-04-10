@@ -66,7 +66,7 @@ public:
         , m_header(other.m_header)
     {}
 
-    virtual void apply(PacketVisitor& visitor) override;
+    virtual void apply(visitors::PacketVisitor& visitor) override;
 
     const EthernetHeader& eth_header() const { return this->m_header; }
 };

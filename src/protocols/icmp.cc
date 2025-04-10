@@ -36,7 +36,7 @@ ICMP_Packet::ICMP_Packet(super&& sup)
 }
 
 
-void ICMP_Packet::apply(PacketVisitor &visitor) 
+void ICMP_Packet::apply(visitors::PacketVisitor &visitor) 
 {
     visitor.visit(*this);
 }

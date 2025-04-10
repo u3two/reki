@@ -36,7 +36,7 @@ public:
     explicit TCP_Packet(std::vector<u8>&& bytes);
     explicit TCP_Packet(super&& sup);
 
-    virtual void apply(PacketVisitor& visitor) override;
+    virtual void apply(visitors::PacketVisitor& visitor) override;
 
     const TCP_Header& tcp_header() const { return this->m_header; }
 };

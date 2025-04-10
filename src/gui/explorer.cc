@@ -19,6 +19,8 @@ void Explorer::handle_event(SDL_Event &ev)
             auto &mouse = ev.button;
             if (in_bounds(m_bounds, mouse.x, mouse.y)) {
                 // check if a header was clicked (so that we can fold/unfold it)
+                // TODO(!): this is incorrect, doesn't account for already unfolded items..
+                //          needs to be solved generically with the notion of buttons
                 u32 header_idx = (mouse.y - m_bounds.y) / Explorer::ITEM_HEIGHT;
 
                 if (header_idx < m_folded.size())
@@ -47,7 +49,7 @@ void Explorer::draw(SDL_FRect bounds)
         });
     } else {
         auto &sel = APP_STATE.packet_store.at(*GUI_STATE.listing_selected_idx);
-        PacketGUIExplorer visitor {};
+        visitors::ExplorerData visitor {};
 
         sel->apply(visitor);
 

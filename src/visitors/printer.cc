@@ -3,7 +3,9 @@
 #include <iostream>
 #include <iomanip>
 
-void PacketPrinter::visit(Packet& a) {
+namespace visitors {
+
+void Printer::visit(Packet& a) {
     if (this->hexdump) {
         std::cout << std::uppercase << std::hex;
 
@@ -27,32 +29,34 @@ void PacketPrinter::visit(Packet& a) {
               << std::endl;
 }
 
-void PacketPrinter::visit(EthernetPacket& a) {
-    PacketPrinter::visit(static_cast<EthernetPacket::super&>(a));
+void Printer::visit(EthernetPacket& a) {
+    Printer::visit(static_cast<EthernetPacket::super&>(a));
     a.eth_header().print();
 }
 
-void PacketPrinter::visit(IP_Packet& a) {
-    PacketPrinter::visit(static_cast<IP_Packet::super&>(a));
+void Printer::visit(IP_Packet& a) {
+    Printer::visit(static_cast<IP_Packet::super&>(a));
     a.ip_header().print();
 }
 
-void PacketPrinter::visit(TCP_Packet& a) {
-    PacketPrinter::visit(static_cast<TCP_Packet::super&>(a));
+void Printer::visit(TCP_Packet& a) {
+    Printer::visit(static_cast<TCP_Packet::super&>(a));
     a.tcp_header().print();
 }
 
-void PacketPrinter::visit(UDP_Packet& a) {
-    PacketPrinter::visit(static_cast<UDP_Packet::super&>(a));
+void Printer::visit(UDP_Packet& a) {
+    Printer::visit(static_cast<UDP_Packet::super&>(a));
     a.udp_header().print();
 }
 
-void PacketPrinter::visit(ARP_Packet& a) {
-    PacketPrinter::visit(static_cast<ARP_Packet::super&>(a));
+void Printer::visit(ARP_Packet& a) {
+    Printer::visit(static_cast<ARP_Packet::super&>(a));
     a.arp_header().print();
 }
 
-void PacketPrinter::visit(ICMP_Packet& a) {
-    PacketPrinter::visit(static_cast<ARP_Packet::super&>(a));
+void Printer::visit(ICMP_Packet& a) {
+    Printer::visit(static_cast<ARP_Packet::super&>(a));
     a.icmp_header().print();
+}
+
 }

@@ -44,7 +44,7 @@ UDP_Packet::UDP_Packet(super&& sup)
     m_header.into_host_endian();
 }
 
-void UDP_Packet::apply(PacketVisitor &visitor) 
+void UDP_Packet::apply(visitors::PacketVisitor &visitor) 
 {
     visitor.visit(*this);
 }

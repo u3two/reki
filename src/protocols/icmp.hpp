@@ -48,7 +48,7 @@ public:
         , m_header{other.m_header}
     {}
 
-    virtual void apply(PacketVisitor& visitor) override;
+    virtual void apply(visitors::PacketVisitor& visitor) override;
 
     const ICMP_Header &icmp_header() const { return this->m_header; };
 };

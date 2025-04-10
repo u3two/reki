@@ -1,5 +1,7 @@
 #include "visitors.hpp"
 
+namespace visitors {
+
 void DatabaseStore::visit(Packet& a) {
     // m_sql << "witam";
 }
@@ -20,4 +22,6 @@ void DatabaseStore::visit(ARP_Packet& a) {
 }
 
 void DatabaseStore::visit(ICMP_Packet& a) {
+}
+
 }

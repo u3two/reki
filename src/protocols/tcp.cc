@@ -64,7 +64,7 @@ TCP_Packet::TCP_Packet(super&& sup)
     m_header.into_host_endian();
 }
 
-void TCP_Packet::apply(PacketVisitor &visitor) 
+void TCP_Packet::apply(visitors::PacketVisitor &visitor) 
 {
     visitor.visit(*this);
 }

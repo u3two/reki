@@ -73,7 +73,7 @@ void EthernetHeader::print() const {
     std::cout << std::dec;
 }
 
-void EthernetPacket::apply(PacketVisitor &visitor) 
+void EthernetPacket::apply(visitors::PacketVisitor &visitor) 
 {
     visitor.visit(*this);
 }

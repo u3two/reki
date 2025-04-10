@@ -79,7 +79,7 @@ void Listing::draw(SDL_FRect bounds)
     u32 max_items = this->max_items();
 
     u32 i = 0;
-    ListingInfoFetcher visitor {};
+    visitors::ListingData visitor {};
     for (auto &p : APP_STATE.packet_store) {
         if (i == max_items + this->m_scroll_offset)
             break; // hit the last visible element, bail
@@ -90,7 +90,7 @@ void Listing::draw(SDL_FRect bounds)
         }
 
         p->apply(visitor);
-        const ListingInfo &lst = visitor.get_listing();
+        const ListingData &lst = visitor.get_listing();
 
         i32 listing_number = i - this->m_scroll_offset;
 

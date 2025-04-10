@@ -7,7 +7,7 @@
 namespace gui {
 
 
-struct ListingInfo {
+struct ListingData {
     // TODO: info should probably be split into individual subsections 
     //       (if possible efficiently, doing one heap alloc etc.)
     std::string info;

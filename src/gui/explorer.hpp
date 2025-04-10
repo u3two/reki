@@ -7,7 +7,7 @@
 
 namespace gui {
 
-struct ExplorerField {
+struct ExplorerData {
     const char *title;
     /// key-value
     std::vector<std::pair<const char *, std::string>> kv;

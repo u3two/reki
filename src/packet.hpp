@@ -6,8 +6,10 @@
 #include <ctime>
 #include <vector>
 
+namespace visitors {
 // see: visitors/*
 class PacketVisitor;
+}
 
 class Packet {
 private:
@@ -55,7 +57,7 @@ public:
     i32 header_size() const { return m_offset; }
 
     /// Apply a visitor.
-    virtual void apply(PacketVisitor& visitor);
+    virtual void apply(visitors::PacketVisitor& visitor);
 };
 
 #endif /* REKI_PACKET */

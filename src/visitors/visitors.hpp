@@ -15,6 +15,8 @@
 #include <soci/soci.h>
 #include <soci/sqlite3/soci-sqlite3.h>
 
+namespace visitors {
+
 class PacketVisitor {
 public:
     virtual ~PacketVisitor() {}
@@ -39,7 +41,7 @@ public:
     void visit(ICMP_Packet& a) override; \
 
 
-class PacketPrinter final : public PacketVisitor {
+class Printer final : public PacketVisitor {
 public:
     bool hexdump = false;
 
@@ -56,21 +58,22 @@ public:
     VISITOR_FUNCTIONS
 };
 
-class ListingInfoFetcher final : public PacketVisitor {
+class ListingData final : public PacketVisitor {
 private:
-    gui::ListingInfo m_listing {};
+    gui::ListingData m_listing {};
 public:
-    const gui::ListingInfo &get_listing() { return this->m_listing; };
+    const gui::ListingData &get_listing() { return this->m_listing; };
 
     VISITOR_FUNCTIONS
 };
 
-// TODO: rename this lol
-class PacketGUIExplorer final : public PacketVisitor {
+class ExplorerData final : public PacketVisitor {
 public:
-    std::vector<gui::ExplorerField> items;
+    std::vector<gui::ExplorerData> items;
 
     VISITOR_FUNCTIONS
 };
+
+}
 
 #endif /* REKI_VISITOR */

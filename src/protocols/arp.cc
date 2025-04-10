@@ -117,7 +117,7 @@ ARP_Packet::ARP_Packet(super&& sup)
     m_header.into_host_endian();
 }
 
-void ARP_Packet::apply(PacketVisitor &visitor) 
+void ARP_Packet::apply(visitors::PacketVisitor &visitor) 
 {
     visitor.visit(*this);
 }
