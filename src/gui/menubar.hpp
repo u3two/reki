@@ -33,6 +33,10 @@ class CaptureButton final : public Button {
 private:
     static constexpr SDL_Color COLOR_BG = { 185, 185, 185, 255 };
     static constexpr const char *LABELS[] = { "START", "STOP" };
+    enum {
+        LABEL_START,
+        LABEL_STOP
+    };
     i32 m_label_idx;
 public:
     CaptureButton(SDL_FRect bounds)

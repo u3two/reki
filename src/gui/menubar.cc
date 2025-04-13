@@ -9,14 +9,15 @@ using namespace gui;
 
 void CaptureButton::click() 
 {
-    m_label_idx = (m_label_idx + 1) % (sizeof(LABELS)/sizeof(LABELS[0]));
-
-    std::lock_guard<std::mutex> lck { APP_STATE.mutex };
-    if (m_label_idx == 1) {
-        APP_STATE.capture.start();
-    } else {
-        APP_STATE.capture.stop();
+    {
+        std::lock_guard<std::mutex> lck { APP_STATE.mutex };
+        if (m_label_idx == LABEL_START) {
+            APP_STATE.capture.start();
+        } else if (m_label_idx == LABEL_STOP) {
+            APP_STATE.capture.stop();
+        }
     }
+    m_label_idx = (m_label_idx + 1) % (sizeof(LABELS)/sizeof(LABELS[0]));
 }
 
 void CaptureButton::draw()
