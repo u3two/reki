@@ -7,13 +7,10 @@ AppState APP_STATE;
 
 int main() 
 {
-    PacketCapture capture {};
     gui::init();
-
-    capture.start();
 
     gui::launch();
 
-    capture.stop();
+    APP_STATE.capture.stop();
     return 0;
 }

@@ -2,7 +2,9 @@
 #include "packet_stream.hpp"
 #include "appstate.hpp"
 
+#include <optional>
 #include <unistd.h>
+
 #include <mutex>
 
 PacketCapture::PacketCapture()
@@ -40,4 +42,6 @@ void PacketCapture::stop()
 
     write(m_cancelfds[1], "#", 1);
     m_thread->join();
+
+    m_thread = std::nullopt;
 }
