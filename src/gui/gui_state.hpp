@@ -5,6 +5,7 @@
 #include "listing.hpp"
 #include "explorer.hpp"
 #include "menubar.hpp"
+#include "searchbar.hpp"
 
 #include <memory>
 #include <optional>
@@ -24,7 +25,11 @@ struct State {
         std::make_shared<VerticalSplit>(
             PaneSpan { 0.5f },
             std::make_shared<Explorer>(),
-            std::make_shared<Listing>()
+            std::make_shared<HorizontalSplit>(
+                PaneSpan { 35 },
+                std::make_shared<SearchBar>(),
+                std::make_shared<Listing>()
+            )
         )
     );
 
@@ -34,6 +39,12 @@ struct State {
     /// count of currently displayed packets. If this is different than the actual count
     /// (most likely obtained from APP_STATE), we should redraw and update this.
     u32 displayed_packets;
+
+    /// text entered in the filtering box
+    std::string filter_text;
+
+    /// was the last filter text valid (according to the listing?)
+    bool filter_ok;
 
     bool quit = false;
     bool redraw = true;

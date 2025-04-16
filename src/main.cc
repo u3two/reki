@@ -8,7 +8,6 @@ AppState APP_STATE;
 int main() 
 {
     gui::init();
-
     gui::launch();
 
     APP_STATE.capture.stop();

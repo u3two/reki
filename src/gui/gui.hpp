@@ -74,7 +74,7 @@ public:
         float height_bound {};
         switch (m_span.type()) {
             case PaneSpanType::Absolute: {
-                height_bound = bounds.y + std::get<i32>(m_span.value());
+                height_bound = std::get<i32>(m_span.value());
             } break;
             case PaneSpanType::Ratio: {
                 height_bound = bounds.h * std::get<float>(m_span.value());
@@ -83,7 +83,7 @@ public:
 
         SDL_FRect upper_bounds = {
             bounds.x, bounds.y,
-            bounds.w , height_bound,
+            bounds.w, height_bound,
         };
         m_up->draw(upper_bounds);
 
@@ -116,7 +116,7 @@ public:
         float width_bound {};
         switch (m_span.type()) {
             case PaneSpanType::Absolute: {
-                width_bound = bounds.x + std::get<i32>(m_span.value());
+                width_bound = std::get<i32>(m_span.value());
             } break;
             case PaneSpanType::Ratio: {
                 width_bound = bounds.w * std::get<float>(m_span.value());

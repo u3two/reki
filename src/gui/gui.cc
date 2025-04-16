@@ -1,4 +1,6 @@
 #include "gui.hpp"
+#include "SDL3/SDL_events.h"
+#include "SDL3/SDL_keyboard.h"
 #include "gui_state.hpp"
 
 #include "../appstate.hpp"
@@ -39,6 +41,9 @@ void gui::init()
         std::cerr << "SDL_TTF couldn't open font: " << SDL_GetError() << "\n";
         throw std::runtime_error("SDL_INIT_TTF_OPEN");
     }
+
+    // we are constantly accepting text input for the filter box
+    SDL_StartTextInput(GUI_STATE.window);
 }
 
 static void draw_all()
@@ -89,6 +94,8 @@ void gui::launch()
                     GUI_STATE.redraw = true;
                 } break;
                 case SDL_EVENT_MOUSE_WHEEL:
+                case SDL_EVENT_TEXT_INPUT:
+                case SDL_EVENT_KEY_DOWN:
                 case SDL_EVENT_MOUSE_BUTTON_DOWN: {
                     GUI_STATE.layout->handle_event(ev);
                     GUI_STATE.redraw = true;
