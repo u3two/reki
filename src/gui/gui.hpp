@@ -46,7 +46,7 @@ public:
     const variant_t &value() const { return this->m_value; } 
 };
 
-/// A generic, drawable "node" type. That can be drawn inherit from this class.
+/// A generic, drawable "node" type. Anything that can be drawn inherits from this class.
 /// This includes classes used for determining the layout (splits, etc.)
 class Node {
 public:

@@ -20,7 +20,6 @@ endif()
 
 add_subdirectory(lib/soci)
 
-
 file(GLOB_RECURSE SRC src/*.cc)
 
 add_executable(reki ${SRC})

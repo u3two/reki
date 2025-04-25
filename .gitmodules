@@ -1,0 +1,12 @@
+[submodule "lib/soci"]
+	path = lib/soci
+	url = https://github.com/SOCI/soci
+[submodule "lib/SDL"]
+	path = lib/SDL
+	url = https://github.com/libsdl-org/SDL.git
+[submodule "lib/SDL3-ttf"]
+	path = lib/SDL3-ttf
+	url = https://github.com/libsdl-org/SDL_ttf
+[submodule "lib/SDL3"]
+	path = lib/SDL3
+	url = https://github.com/libsdl-org/SDL.git
