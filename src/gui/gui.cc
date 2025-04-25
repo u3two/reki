@@ -2,6 +2,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_keyboard.h"
 #include "gui_state.hpp"
+#include "font.hpp"
 
 #include "../appstate.hpp"
 
@@ -36,7 +37,7 @@ void gui::init()
         throw std::runtime_error("SDL_INIT_TTF");
     }
 
-    GUI_STATE.font = TTF_OpenFont("../fonts/RobotoMono-Regular.ttf", 16);
+    GUI_STATE.font = open_font();
     if (!GUI_STATE.font) {
         std::cerr << "SDL_TTF couldn't open font: " << SDL_GetError() << "\n";
         throw std::runtime_error("SDL_INIT_TTF_OPEN");

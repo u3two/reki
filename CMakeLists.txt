@@ -20,8 +20,16 @@ endif()
 
 add_subdirectory(lib/soci)
 
+# embeds the font in the executable, etc.
+add_custom_target(build_resources ALL
+    COMMAND ${CMAKE_MAKE_PROGRAM}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/res
+)
+
 file(GLOB_RECURSE SRC src/*.cc)
 
 add_executable(reki ${SRC})
+add_dependencies(reki build_resources)
 
+target_link_options(reki PRIVATE ${CMAKE_SOURCE_DIR}/res/font.o)
 target_link_libraries(reki PRIVATE soci_core soci_sqlite3 SDL3::SDL3 SDL3_ttf::SDL3_ttf)
