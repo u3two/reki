@@ -36,15 +36,14 @@ struct State {
     /// an idx of the currently selected packet (in the listing)
     std::optional<u64> listing_selected_idx;
 
-    /// count of currently displayed packets. If this is different than the actual count
-    /// (most likely obtained from APP_STATE), we should redraw and update this.
-    u32 displayed_packets;
+    /// The total number of packets in the packet store that the gui was aware of the last time
+    /// it was fully redrawn. Keeping track of this enables redrawing upon a new packet's arrival
+    u32 gui_packet_count;
 
     /// text entered in the filtering box
     std::string filter_text;
 
-    /// was the last filter text valid (according to the listing?)
-    bool filter_ok;
+    bool filter_text_changed;
 
     bool quit = false;
     bool redraw = true;

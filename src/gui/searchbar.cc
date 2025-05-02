@@ -62,10 +62,13 @@ void SearchBar::handle_event(SDL_Event& ev)
     switch (ev.type) {
         case SDL_EVENT_TEXT_INPUT: {
             GUI_STATE.filter_text.append(ev.text.text);
+            GUI_STATE.filter_text_changed = true;
         } break;
         case SDL_EVENT_KEY_DOWN: {
-            if (ev.key.key == SDLK_BACKSPACE && !GUI_STATE.filter_text.empty())
+            if (ev.key.key == SDLK_BACKSPACE && !GUI_STATE.filter_text.empty()) {
                 GUI_STATE.filter_text.pop_back();
+                GUI_STATE.filter_text_changed = true;
+            }
         } break;
     }
 }

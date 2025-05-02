@@ -51,7 +51,7 @@ static void draw_all()
 {
     // I think it is ok not to take the lock here? We can afford a 1 frame delay
     // and we are only reading the value
-    if (GUI_STATE.displayed_packets < APP_STATE.packet_store.size())
+    if (GUI_STATE.gui_packet_count < APP_STATE.packet_store.size())
         GUI_STATE.redraw = true;
 
     if (!GUI_STATE.redraw)

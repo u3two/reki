@@ -74,6 +74,14 @@ public:
     VISITOR_FUNCTIONS
 };
 
+class Filter final : public PacketVisitor {
+public:
+    bool matched;
+    std::string_view filter_text;
+
+    VISITOR_FUNCTIONS
+};
+
 }
 
 #endif /* REKI_VISITOR */
