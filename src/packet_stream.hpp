@@ -1,8 +1,6 @@
 #ifndef REKI_PACKET_STREAM
 #define REKI_PACKET_STREAM
 
-// TODO: refactor, split this into seperate files for linux/windows
-
 #include "packet.hpp"
 
 #include <memory>
@@ -29,11 +27,6 @@ private:
 public:
     explicit LinuxPacketStream(int cancelfd);
     ~LinuxPacketStream() override;
-    std::optional<std::unique_ptr<Packet>> next() override;
-};
-
-class WindowsPacketStream final : public PacketStream {
-public:
     std::optional<std::unique_ptr<Packet>> next() override;
 };
 

@@ -1,4 +1,3 @@
-// TODO: separate into two files? (linux_packet_stream.cc, etc.)
 #include "packet_stream.hpp"
 #include "defs.hpp"
 
@@ -20,16 +19,9 @@
 
 #include <net/ethernet.h>
 
-
 std::unique_ptr<PacketStream> PacketStream::create(int cancelfd)
 {
-#ifdef __linux__
     return std::make_unique<LinuxPacketStream>(cancelfd);
-#endif
-
-#ifdef _WIN32
-    return std::make_unique<WindowsPacketStream>();
-#endif
 }
 
 LinuxPacketStream::LinuxPacketStream(int cancelfd) 
