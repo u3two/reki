@@ -12,9 +12,6 @@
 #include "../gui/listing.hpp"
 #include "../gui/explorer.hpp"
 
-#include <soci/soci.h>
-#include <soci/sqlite3/soci-sqlite3.h>
-
 namespace visitors {
 
 class PacketVisitor {
@@ -44,16 +41,6 @@ public:
 class Printer final : public PacketVisitor {
 public:
     bool hexdump = false;
-
-    VISITOR_FUNCTIONS
-};
-
-class DatabaseStore final : public PacketVisitor {
-private:
-    soci::session m_sql;
-public:
-    explicit DatabaseStore(const char *file)
-    : m_sql(soci::sqlite3, file) {}
 
     VISITOR_FUNCTIONS
 };

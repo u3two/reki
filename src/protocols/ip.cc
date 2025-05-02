@@ -4,12 +4,13 @@
 #include <bitset>
 #include <ios>
 #include <iostream>
+#include <sstream>
 
 #include <arpa/inet.h>
 
 std::string ip_address_to_string(const u8 addr[4])
 {
-    std::ostringstream oss;
+    std::stringstream oss;
     oss << std::dec;
     for (u8 i = 0; i < 4; i++)
         oss << +addr[i]

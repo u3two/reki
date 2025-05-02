@@ -15,9 +15,9 @@
         ];
 
         buildInputs = with pkgs; [
-          sqlite
           sdl3
           sdl3-ttf
+          libcap
         ];
       };
     };

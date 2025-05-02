@@ -13,12 +13,10 @@ if (REKI_VENDORED)
     add_subdirectory(lib/SDL3) # TODO: make this work on nix?
     add_subdirectory(lib/SDL3-ttf)
 else()
-    find_package(SQLite3 REQUIRED)
     find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
     find_package(SDL3_ttf REQUIRED CONFIG)
+    find_library(LIBCAP NAMES cap REQUIRED)
 endif()
-
-add_subdirectory(lib/soci)
 
 # embeds the font in the executable, etc.
 add_custom_target(build_resources ALL
@@ -32,4 +30,4 @@ add_executable(reki ${SRC})
 add_dependencies(reki build_resources)
 
 target_link_options(reki PRIVATE ${CMAKE_SOURCE_DIR}/res/font.o)
-target_link_libraries(reki PRIVATE soci_core soci_sqlite3 SDL3::SDL3 SDL3_ttf::SDL3_ttf)
+target_link_libraries(reki PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf ${LIBCAP})
