@@ -81,7 +81,6 @@ std::vector<u8> LinuxPacketStream::fetch_next()
     return buff;
 }
 
-// TODO: move to packet.hpp..?
 std::unique_ptr<Packet> packet_from_data(std::vector<u8> data)
 {
     // assume for now that all packets coming our way are ethernet packets.

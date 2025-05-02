@@ -12,20 +12,21 @@
 
 using namespace gui;
 
+void FoldButton::click()
+{
+    this->m_folded = !this->m_folded;
+}
+
+void FoldButton::draw()
+{ /* */ }
+
 void Explorer::handle_event(SDL_Event &ev)
 {
     switch (ev.type) {
         case SDL_EVENT_MOUSE_BUTTON_DOWN: {
             auto &mouse = ev.button;
-            if (in_bounds(m_bounds, mouse.x, mouse.y)) {
-                // check if a header was clicked (so that we can fold/unfold it)
-                // TODO(!): this is incorrect, doesn't account for already unfolded items..
-                //          needs to be solved generically with the notion of buttons
-                u32 header_idx = (mouse.y - m_bounds.y) / Explorer::ITEM_HEIGHT;
-
-                if (header_idx < m_folded.size())
-                    m_folded[header_idx] = !m_folded[header_idx];
-            }
+            for (auto &button : this->m_buttons)
+                button.try_click(mouse.x, mouse.y);
         } break;
     }
 }
@@ -48,29 +49,38 @@ void Explorer::draw(SDL_FRect bounds)
             };
         });
     } else {
-        auto &sel = APP_STATE.packet_store.at(*GUI_STATE.listing_selected_idx);
-        visitors::ExplorerData visitor {};
+        static i32 prev_selected_idx = -1;
 
+        auto &sel = APP_STATE.packet_store.at(*GUI_STATE.listing_selected_idx);
+
+        visitors::ExplorerData visitor {};
         sel->apply(visitor);
 
-        u32 draw_ii = 0;
-        u32 item_ii = 0;
-        for (auto &item : visitor.items) {
-            bool folded = true;
-            if (m_folded.size() == item_ii) {
-                // first iter since new draw, default to folding.
-                m_folded.push_back(true);
-            } else {
-                folded = m_folded.at(item_ii);
+        if (GUI_STATE.listing_selected_idx != prev_selected_idx) {
+            // a new item was selected, create all the buttons anew
+            this->m_buttons.clear();
+            for (auto &_ : visitor.items) {
+                this->m_buttons.push_back( 
+                    FoldButton{} 
+                );
             }
+            prev_selected_idx = *GUI_STATE.listing_selected_idx;
+        }
+
+        u32 item_ii = 0;
+        u32 draw_ii = 0;
+        for (auto &item : visitor.items) {
+            FoldButton &button = m_buttons.at(item_ii);
 
             SDL_FRect HeaderRect = {
                 bounds.x, bounds.y + Explorer::ITEM_HEIGHT * draw_ii,
                 bounds.w, Explorer::ITEM_HEIGHT
             };
 
+            button.set_bounds(HeaderRect);
+
             std::stringstream hdr_stream;
-            hdr_stream << (folded ? "[SHOW] " : "[HIDE] ") << item.title;
+            hdr_stream << (button.folded() ? "[SHOW] " : "[HIDE] ") << item.title;
 
             // draw the header
             SDL_SetRenderDrawColor(GUI_STATE.renderer, 120, 120, 120, 255);
@@ -78,7 +88,7 @@ void Explorer::draw(SDL_FRect bounds)
             draw_text(hdr_stream.str().c_str(), HeaderRect.x + 5, HeaderRect.y);
             draw_ii++;
 
-            if (!folded) {
+            if (!button.folded()) {
                 for (auto &[key, val] : item.kv) {
                     draw_text(key,
                               HeaderRect.x + 5,
@@ -91,10 +101,10 @@ void Explorer::draw(SDL_FRect bounds)
                     draw_ii++;
                 }
             }
+
             item_ii++;
         }
 
-        // TODO: extract into its own pane?
         // draw hexdump
         SDL_FRect HexdumpRect {
             bounds.x, bounds.y + bounds.h * 3.f/4,
