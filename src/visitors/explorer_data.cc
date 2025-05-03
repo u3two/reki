@@ -98,6 +98,24 @@ void ExplorerData::visit(UDP_Packet& a) {
 
 void ExplorerData::visit(ARP_Packet& a) {
     ExplorerData::visit(static_cast<ARP_Packet::super&>(a));
+
+    auto &hdr = a.arp_header();
+    auto &hdr_data = a.arp_header().data();
+
+    items.emplace_back(gui::ExplorerData {
+        "ARP Header",
+        {
+            {"Hardware Type", std::to_string(hdr_data.hardware_type)},
+            {"Protocol Type", std::to_string(hdr_data.protocol_type)},
+            {"Hardware Length", std::to_string(hdr_data.hardware_length)},
+            {"Protocol Length", std::to_string(hdr_data.protocol_length)},
+            {"Operation", std::to_string(hdr_data.operation)},
+            {"Hardware Sender", arp_address_to_string(hdr.sender_hardware_address())},
+            {"Protocol Sender", arp_address_to_string(hdr.sender_protocol_address())},
+            {"Hardware Target", arp_address_to_string(hdr.target_hardware_address())},
+            {"Protocol Target", arp_address_to_string(hdr.target_protocol_address())},
+        }
+    });
 }
 
 void ExplorerData::visit(ICMP_Packet& a) {

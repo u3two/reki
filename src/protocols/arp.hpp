@@ -20,6 +20,8 @@ struct ARP_HeaderData {
     std::vector<u8> target_protocol_address(const u8 *address_fields_start) const;
 } __attribute__((packed));
 
+std::string arp_address_to_string(const std::vector<u8>&);
+
 template<>
 class PacketHeader<ARP_HeaderData> {
 private:
@@ -33,6 +35,15 @@ public:
 
     void into_host_endian();
     void print() const;
+
+    std::vector<u8> sender_hardware_address() const 
+        { return m_header.sender_hardware_address(m_address_fields_start); }
+    std::vector<u8> sender_protocol_address() const
+        { return m_header.sender_protocol_address(m_address_fields_start); }
+    std::vector<u8> target_hardware_address() const
+        { return m_header.target_hardware_address(m_address_fields_start); }
+    std::vector<u8> target_protocol_address() const
+        { return m_header.target_protocol_address(m_address_fields_start); }
 
     const ARP_HeaderData& data() const { return m_header; }
 };

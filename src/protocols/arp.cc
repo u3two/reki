@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <sstream>
 
 std::vector<u8> ARP_HeaderData::sender_hardware_address(const u8 *address_fields_start) const
 {
@@ -49,6 +50,33 @@ std::vector<u8> ARP_HeaderData::target_protocol_address(const u8 *address_fields
     return ret;
 }
 
+void arp_address_stream_format(std::ostream &stream, const std::vector<u8>& vec)
+{
+    switch(vec.size()) {
+        case 4:
+            for (size_t i = 0; i < vec.size(); i++)
+                stream << +vec[i]
+                    << (i != vec.size()-1 ? "." : "");
+            break;
+        default:
+            stream << std::hex;
+            for (size_t i = 0; i < vec.size(); i++)
+                stream << std::setw(2) << std::setfill('0') 
+                    << +vec[i]
+                    << (i != vec.size()-1 ? ":" : "");
+            stream << std::dec;
+    }
+}
+
+std::string arp_address_to_string(const std::vector<u8>& vec)
+{
+    std::stringstream sstream;
+
+    arp_address_stream_format(sstream, vec);
+
+    return sstream.str();
+}
+
 void ARP_Header::print() const
 {
     std::cout << "[ARP Header]\n";
@@ -59,37 +87,20 @@ void ARP_Header::print() const
     std::cout << "Protocol Length: " << +m_header.protocol_length << std::endl;
     std::cout << "Operation: " << +m_header.operation << std::endl;
 
-    auto print_address = [](const std::vector<u8>& vec) {
-        switch(vec.size()) {
-            case 4:
-                for (size_t i = 0; i < vec.size(); i++)
-                    std::cout << +vec[i]
-                              << (i != vec.size()-1 ? "." : "");
-                break;
-            default:
-                std::cout << std::hex;
-                for (size_t i = 0; i < vec.size(); i++)
-                    std::cout << std::setw(2) << std::setfill('0') 
-                              << +vec[i]
-                              << (i != vec.size()-1 ? ":" : "");
-                std::cout << std::dec;
-        }
-    };
-
     std::cout << "Sender Hardware Address: ";
-    print_address(m_header.sender_hardware_address(this->m_address_fields_start));
+    arp_address_stream_format(std::cout, this->sender_hardware_address());
     std::cout << std::endl;
 
     std::cout << "Sender Protocol Address: ";
-    print_address(m_header.sender_protocol_address(this->m_address_fields_start));
+    arp_address_stream_format(std::cout, this->sender_protocol_address());
     std::cout << std::endl;
 
     std::cout << "Target Hardware Address: ";
-    print_address(m_header.target_hardware_address(this->m_address_fields_start));
+    arp_address_stream_format(std::cout, this->target_hardware_address());
     std::cout << std::endl;
 
     std::cout << "Target Protocol Address: ";
-    print_address(m_header.target_protocol_address(this->m_address_fields_start));
+    arp_address_stream_format(std::cout, this->target_protocol_address());
     std::cout << std::endl;
 }
 
