@@ -7,7 +7,7 @@
 template<>
 void ICMP_Header::into_host_endian()
 {
-    m_header.checksum = ntohs(m_header.checksum);
+    m_data.checksum = ntohs(m_data.checksum);
 }
 
 template<>
@@ -15,8 +15,8 @@ void ICMP_Header::print() const
 {
     std::cout << "[ICMP Header]\n";
 
-    std::cout << "Type: " << m_header.type << std::endl
-              << "Code: " << m_header.code << std::endl;
+    std::cout << "Type: " << m_data.type << std::endl
+              << "Code: " << m_data.code << std::endl;
 }
 
 ICMP_Packet::ICMP_Packet(std::vector<u8>&& bytes) 

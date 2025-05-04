@@ -8,7 +8,7 @@
 AppState APP_STATE;
 
 // verify that the process was run with the CAP_NET_RAW Linux capability enabled, 
-// so that it can open raw PACKET sockets.
+// so that it can open raw packet(7) sockets.
 void check_capabilities()
 {
     cap_t current = cap_get_proc();

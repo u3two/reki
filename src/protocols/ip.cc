@@ -21,10 +21,10 @@ std::string ip_address_to_string(const u8 addr[4])
 template<>
 void IP_Header::into_host_endian()
 {
-    m_header.total_length = ntohs(m_header.total_length);
-    m_header.identification = ntohs(m_header.identification);
+    m_data.total_length = ntohs(m_data.total_length);
+    m_data.identification = ntohs(m_data.identification);
     // fragment_offset & flags ?
-    m_header.checksum = ntohs(m_header.checksum);
+    m_data.checksum = ntohs(m_data.checksum);
 }
 
 template<>
@@ -32,26 +32,26 @@ void IP_Header::print() const
 {
     std::cout << "[IP Header]\n";
 
-    std::cout << "Version: " << +m_header.version << std::endl;
-    std::cout << "Internet Header Length: " << +m_header.iheader_length << std::endl;
-    std::cout << "DSCP: " << +m_header.dscp << std::endl;
-    std::cout << "ECN: " << +m_header.ecn << std::endl;
-    std::cout << "Total Length: " << m_header.total_length << std::endl;
-    std::cout << "Identification: " << m_header.identification << std::endl;
-    std::cout << "Flags: 0b" << std::bitset<3>(m_header.flags) << std::endl;
-    std::cout << "Fragment Offset: " << m_header.fragment_offset << std::endl;
-    std::cout << "TTL: " << +m_header.ttl << std::endl;
+    std::cout << "Version: " << +m_data.version << std::endl;
+    std::cout << "Internet Header Length: " << +m_data.iheader_length << std::endl;
+    std::cout << "DSCP: " << +m_data.dscp << std::endl;
+    std::cout << "ECN: " << +m_data.ecn << std::endl;
+    std::cout << "Total Length: " << m_data.total_length << std::endl;
+    std::cout << "Identification: " << m_data.identification << std::endl;
+    std::cout << "Flags: 0b" << std::bitset<3>(m_data.flags) << std::endl;
+    std::cout << "Fragment Offset: " << m_data.fragment_offset << std::endl;
+    std::cout << "TTL: " << +m_data.ttl << std::endl;
 
-    std::cout << "Protocol: " << +m_header.protocol 
-              << " (" << ip_proto_to_sv(IP_Protocol(m_header.protocol)) << ")"
+    std::cout << "Protocol: " << +m_data.protocol 
+              << " (" << ip_proto_to_sv(IP_Protocol(m_data.protocol)) << ")"
               << std::endl;
 
     std::cout << std::hex << std::uppercase
-              << "Checksum: 0x" << m_header.checksum
+              << "Checksum: 0x" << m_data.checksum
               << std::dec << std::endl;
     
-    std::cout << "Source: " << ip_address_to_string(m_header.source_address) << std::endl;
-    std::cout << "Destination: " << ip_address_to_string(m_header.destination_address) << std::endl;
+    std::cout << "Source: " << ip_address_to_string(m_data.source_address) << std::endl;
+    std::cout << "Destination: " << ip_address_to_string(m_data.destination_address) << std::endl;
 
     std::cout << std::dec;
 }

@@ -17,13 +17,13 @@ std::vector<u8> TCP_HeaderData::options() const {
 template<>
 void TCP_Header::into_host_endian() 
 {
-    m_header.source_port = ntohs(m_header.source_port);
-    m_header.destination_port = ntohs(m_header.destination_port);
-    m_header.sequence_number = ntohl(m_header.sequence_number);
-    m_header.ack_number = ntohl(m_header.ack_number);
-    m_header.window = ntohs(m_header.window);
-    m_header.checksum = ntohs(m_header.checksum);
-    m_header.urgent_ptr = ntohs(m_header.urgent_ptr);
+    m_data.source_port = ntohs(m_data.source_port);
+    m_data.destination_port = ntohs(m_data.destination_port);
+    m_data.sequence_number = ntohl(m_data.sequence_number);
+    m_data.ack_number = ntohl(m_data.ack_number);
+    m_data.window = ntohs(m_data.window);
+    m_data.checksum = ntohs(m_data.checksum);
+    m_data.urgent_ptr = ntohs(m_data.urgent_ptr);
     // TODO: convert options?
 }
 
@@ -32,20 +32,20 @@ void TCP_Header::print() const
 {
     std::cout << "[TCP Header]\n";
 
-    std::cout << "Source port: " << m_header.source_port << std::endl;
-    std::cout << "Destination port: " << m_header.destination_port << std::endl;
+    std::cout << "Source port: " << m_data.source_port << std::endl;
+    std::cout << "Destination port: " << m_data.destination_port << std::endl;
 
     // TODO: has dual role
-    std::cout << "Sequence number: " << m_header.sequence_number << std::endl;
-    std::cout << "ACK number: " << m_header.ack_number << std::endl;
+    std::cout << "Sequence number: " << m_data.sequence_number << std::endl;
+    std::cout << "ACK number: " << m_data.ack_number << std::endl;
 
-    std::cout << "Data Offset: " << +m_header.data_offset << std::endl;
-    std::cout << "Reserved: " << +m_header.reserved << std::endl;
-    std::cout << "Flags: " << std::bitset<8>(m_header.flags) << std::endl;
+    std::cout << "Data Offset: " << +m_data.data_offset << std::endl;
+    std::cout << "Reserved: " << +m_data.reserved << std::endl;
+    std::cout << "Flags: " << std::bitset<8>(m_data.flags) << std::endl;
 
-    std::cout << "Window: " << m_header.window << std::endl;
-    std::cout << "Checksum: " << m_header.checksum << std::endl;
-    std::cout << "Urgent Pointer: " << m_header.urgent_ptr << std::endl;
+    std::cout << "Window: " << m_data.window << std::endl;
+    std::cout << "Checksum: " << m_data.checksum << std::endl;
+    std::cout << "Urgent Pointer: " << m_data.urgent_ptr << std::endl;
     // TODO: options
 }
 

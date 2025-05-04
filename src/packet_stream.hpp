@@ -12,7 +12,7 @@ public:
     virtual std::optional<std::unique_ptr<Packet>> next() = 0;
     virtual ~PacketStream() {};
 
-    /// Platform dependent stream creation
+    /// platform dependent stream creation
     static std::unique_ptr<PacketStream> create(int cancelfd);
 };
 

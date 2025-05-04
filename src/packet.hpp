@@ -16,12 +16,12 @@ private:
     /// raw packet data, should never be accessed directly after intialization,
     /// for it must not reallocate.
     const std::vector<u8> m_bytes;
+    /// UNIX timestamp of the arrival date
+    u64 m_arrival_time;
 protected:
     /// used by constructors; each constructor sets this to the beginning of the
     /// next layer's packet header
     u16 m_offset = 0;
-    /// UNIX timestamp of the arrival date
-    u64 m_arrival_time;
 public:
     explicit Packet(std::vector<u8>&& bytes) 
     : m_bytes{std::move(bytes)} 
@@ -40,8 +40,8 @@ public:
     // .. but _allow_ move construction
     explicit Packet(Packet&& other)
         : m_bytes(std::move(other.m_bytes)) 
-        , m_offset(other.m_offset)
         , m_arrival_time(std::time(NULL))
+        , m_offset(other.m_offset)
     {}
 
     /// get an immutable reference to the packet's raw data
@@ -54,9 +54,9 @@ public:
     u64 arrival_time() const { return m_arrival_time; }
 
     /// get the combined size of all the headers, in bytes
-    i32 header_size() const { return m_offset; }
+    u32 header_size() const { return m_offset; }
 
-    /// Apply a visitor.
+    /// apply a visitor
     virtual void apply(visitors::PacketVisitor& visitor);
 };
 

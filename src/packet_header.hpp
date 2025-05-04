@@ -3,13 +3,13 @@
 
 #include "defs.hpp"
 
-template<typename header_t>
+template<typename header_data_t>
 class PacketHeader {
 private:
-    header_t m_header;
+    header_data_t m_data;
 public:
     explicit PacketHeader(const u8 *data) 
-    : m_header { *reinterpret_cast<const header_t*>(data) } {}
+    : m_data { *reinterpret_cast<const header_data_t*>(data) } {}
 
     /// convert relevant fields to host byte order
     void into_host_endian() { 
@@ -21,7 +21,7 @@ public:
         static_assert(0, "use an implemented specialization of PacketHeader"); 
     };
 
-    const header_t& data() const { return m_header; }
+    const header_data_t& data() const { return m_data; }
 };
 
 #endif /* REKI_PACKET_HEADER */

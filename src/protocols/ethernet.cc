@@ -56,7 +56,7 @@ EthernetPacket::EthernetPacket(super&& sup)
 template<>
 void EthernetHeader::into_host_endian() 
 {
-    m_header.ethertype = ntohs(m_header.ethertype);
+    m_data.ethertype = ntohs(m_data.ethertype);
 }
 
 template<>
@@ -65,10 +65,10 @@ void EthernetHeader::print() const {
 
     std::cout << std::uppercase << std::hex;
 
-    std::cout << "Destination: " << mac_to_string(m_header.destination) << std::endl;
-    std::cout << "Source: " << mac_to_string(m_header.source) << std::endl;
+    std::cout << "Destination: " << mac_to_string(m_data.destination) << std::endl;
+    std::cout << "Source: " << mac_to_string(m_data.source) << std::endl;
 
-    std::cout << "EtherType: " << ethertype_to_string(EtherType(m_header.ethertype));
+    std::cout << "EtherType: " << ethertype_to_string(EtherType(m_data.ethertype));
 
     std::cout << std::dec;
 }

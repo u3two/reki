@@ -8,7 +8,7 @@
 #include <net/ethernet.h>
 #include <string_view>
 
-/// Non-comprehensive due to the standard specifying  any value 
+/// non-comprehensive due to the standard specifying any value 
 /// under 1500 to be the size, see EtherType::print()
 enum class EtherType : u16 {
     IPv4 = ETHERTYPE_IP,
