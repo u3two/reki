@@ -117,7 +117,7 @@ void Listing::draw(SDL_FRect bounds)
         auto &packet = APP_STATE.packet_store[this->filtered_ii[fi]];
 
         packet->apply(listing_data);
-        const ListingData &lst = listing_data.get_listing();
+        const ListingData &lst = listing_data.m_listing;
 
         SDL_FRect item_rect = { 
             bounds.x, bounds.y + static_cast<float>((fi - this->m_scroll_offset) * Listing::ITEM_HEIGHT),

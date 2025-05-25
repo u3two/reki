@@ -27,7 +27,6 @@ public:
     virtual void visit(ICMP_Packet& a) = 0;
 };
 
-
 #define VISITOR_FUNCTIONS \
     void visit(Packet& a) override; \
     void visit(EthernetPacket& a) override; \
@@ -46,10 +45,8 @@ public:
 };
 
 class ListingData final : public PacketVisitor {
-private:
-    gui::ListingData m_listing {};
 public:
-    const gui::ListingData &get_listing() { return this->m_listing; };
+    gui::ListingData m_listing {};
 
     VISITOR_FUNCTIONS
 };
