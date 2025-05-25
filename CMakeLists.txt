@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(REKI_VENDORED "Use vendored libraries" OFF)
+option(REKI_VENDORED "Use vendored libraries" ON)
 
 if (REKI_VENDORED)
     add_subdirectory(lib/SDL3) # TODO: make this work on nix?
@@ -15,8 +15,9 @@ if (REKI_VENDORED)
 else()
     find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
     find_package(SDL3_ttf REQUIRED CONFIG)
-    find_library(LIBCAP NAMES cap REQUIRED)
 endif()
+
+find_library(LIBCAP NAMES cap REQUIRED)
 
 # embeds the font in the executable, etc.
 add_custom_target(build_resources ALL
