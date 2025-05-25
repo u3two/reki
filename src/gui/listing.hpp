@@ -35,7 +35,7 @@ private:
     u32 max_items();
 public:
     Listing()
-    : m_bounds {}, m_scroll_offset(0), m_selected {}
+    : m_bounds {}, m_scroll_offset(0), item_count {}, m_selected {}
     {}
 
     void draw(SDL_FRect bounds) override;

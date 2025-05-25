@@ -108,11 +108,8 @@ void Listing::draw(SDL_FRect bounds)
     // the total number of packets in the scrollable area, including ones not currently visible
     this->item_count = this->filtered_ii.size();
 
-    // the max number of packets that fit into the window height
-    u32 max_items = this->max_items();
-
     visitors::ListingData listing_data;
-    u32 top_idx = std::min(this->m_scroll_offset + max_items, this->item_count);
+    u32 top_idx = std::min(this->m_scroll_offset + this->max_items(), this->item_count);
     for (u32 fi = this->m_scroll_offset; fi < top_idx; fi++) {
         auto &packet = APP_STATE.packet_store[this->filtered_ii[fi]];
 
@@ -144,7 +141,7 @@ void Listing::draw(SDL_FRect bounds)
     }
 
     // draw the scrollbar
-    if (this->item_count > max_items) {
+    if (this->item_count > this->max_items()) {
         SDL_FRect scrollbar_outer = {
             bounds.x + bounds.w - Listing::SCROLLBAR_WIDTH, bounds.y,
             Listing::SCROLLBAR_WIDTH, bounds.h
@@ -155,7 +152,7 @@ void Listing::draw(SDL_FRect bounds)
 
         this->m_scrollbar_bounds = scrollbar_outer;
 
-        float inner_height = ((float)max_items / this->item_count) * scrollbar_outer.h;
+        float inner_height = ((float)this->max_items() / this->item_count) * scrollbar_outer.h;
 
         SDL_FRect scrollbar_inner = {
             bounds.x + bounds.w - Listing::SCROLLBAR_WIDTH, 

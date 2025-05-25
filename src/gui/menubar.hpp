@@ -17,7 +17,7 @@ private:
     };
     i32 m_label_idx;
 public:
-    CaptureButton(SDL_FRect bounds)
+    explicit CaptureButton(SDL_FRect bounds)
     : Button { bounds }
     , m_label_idx(0)
     {}
@@ -26,7 +26,7 @@ public:
     : CaptureButton { {0,0,0,0} } 
     {};
 
-    ~CaptureButton() {};
+    ~CaptureButton() override {};
 
     void draw() override;
     void click() override;

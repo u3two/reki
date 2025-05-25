@@ -10,7 +10,7 @@ namespace gui {
 
 TTF_Font *open_font()
 {
-    SDL_IOStream *font_stream = SDL_IOFromConstMem((void*)_binary_font_ttf_start, 
+    SDL_IOStream *font_stream = SDL_IOFromConstMem(reinterpret_cast<void*>(_binary_font_ttf_start), 
                                                    _binary_font_ttf_end - _binary_font_ttf_start);
 
     return TTF_OpenFontIO(font_stream, true, 16);

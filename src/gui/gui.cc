@@ -78,10 +78,9 @@ void gui::launch()
     if (!GUI_STATE.window || !GUI_STATE.renderer)
         throw std::runtime_error("GUI not initialized?");
 
-    u64 frame_start;
     SDL_Event ev;
     while (!GUI_STATE.quit) {
-        frame_start = SDL_GetTicks();
+        u64 frame_start = SDL_GetTicks();
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
                 case SDL_EVENT_QUIT: {

@@ -24,7 +24,7 @@ void Explorer::handle_event(SDL_Event &ev)
 {
     switch (ev.type) {
         case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-            auto &mouse = ev.button;
+            const auto &mouse = ev.button;
             for (auto &button : this->m_buttons)
                 button.try_click(mouse.x, mouse.y);
         } break;
@@ -59,7 +59,7 @@ void Explorer::draw(SDL_FRect bounds)
         if (GUI_STATE.listing_selected_idx != prev_selected_idx) {
             // a new item was selected, create all the buttons anew
             this->m_buttons.clear();
-            for (auto &_ : visitor.items) {
+            for (const auto &_ : visitor.items) {
                 this->m_buttons.push_back( 
                     FoldButton{} 
                 );
@@ -127,7 +127,7 @@ void Explorer::draw(SDL_FRect bounds)
         std::stringstream hexdump;
         hexdump << std::uppercase << std::hex << "00 | ";
 
-        i32 i = 0;
+        u32 i = 0;
         for (u8 c : sel->bytes()) {
             i++;
 

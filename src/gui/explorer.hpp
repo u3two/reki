@@ -13,7 +13,7 @@ private:
     static constexpr SDL_Color COLOR_BG = { 185, 185, 185, 255 };
     bool m_folded;
 public:
-    FoldButton(SDL_FRect bounds)
+    explicit FoldButton(SDL_FRect bounds)
     : Button { bounds }
     , m_folded(true)
     {}
@@ -22,7 +22,7 @@ public:
     : FoldButton { {0,0,0,0} } 
     {};
 
-    ~FoldButton() {};
+    ~FoldButton() override {};
 
     void draw() override;
     void click() override;
