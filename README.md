@@ -13,6 +13,10 @@ libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev \
 libfreetype-dev libcap-dev
 ```
 
+## Submodules
+If the repository was not cloned with `--recurse-submodules`, you can initialize them after the fact 
+using `git submodule update --init`.
+
 ## Build steps
 ```bash
 cmake -B build
